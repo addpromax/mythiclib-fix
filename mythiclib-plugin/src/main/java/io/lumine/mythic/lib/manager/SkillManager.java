@@ -144,7 +144,7 @@ public class SkillManager extends GeneralManager {
         registerMechanic("remove_potion", config -> new RemovePotionMechanic(config));
         registerMechanic("set_on_fire", config -> new SetOnFireMechanic(config));
 
-        registerMechanic("give_item", config -> new GiveItemMechanic(config));
+        registerMechanic("give_item", GiveItemMechanic::new);
         registerMechanic("sudo", config -> new SudoMechanic(config));
 
         registerMechanic("shoot_arrow", config -> new ShootArrowMechanic(config), "fire_arrow", "bowshoot", "bow_shoot", "shoot_bow");
