@@ -127,7 +127,8 @@ public class SkillManager extends GeneralManager {
         registerMechanic("reduce_cooldown", config -> new ReduceCooldownMechanic(config));
         registerMechanic("saturate", config -> new SaturateMechanic(config));
 
-        registerMechanic("apply_cooldown", ApplyCooldownMechanic::new);
+        registerMechanic("apply_cooldown", ApplyCooldownMechanic::new, "apply_cd");
+        registerMechanic("consume_ammo", ConsumeAmmoMechanic::new, "take_ammo");
         registerMechanic("delay", DelayMechanic::new);
         registerMechanic("dispatch_command", DispatchCommandMechanic::new);
         registerMechanic("entity_effect", EntityEffectMechanic::new);
@@ -218,7 +219,7 @@ public class SkillManager extends GeneralManager {
         registerCondition("can_target", config -> new CanTargetCondition(config), "can_tgt", "cantarget", "ctgt");
         registerCondition("cooldown", config -> new CooldownCondition(config));
         registerCondition("food", config -> new FoodCondition(config));
-        registerCondition("ammo", config -> new HasAmmoMechanic(config));
+        registerCondition("ammo", HasAmmoCondition::new);
         registerCondition("has_damage_type", config -> new HasDamageTypeCondition(config));
         registerCondition("is_living", config -> new IsLivingCondition(config));
         registerCondition("on_fire", config -> new OnFireCondition(config));
