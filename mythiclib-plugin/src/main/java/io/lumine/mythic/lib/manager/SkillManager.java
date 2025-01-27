@@ -124,7 +124,7 @@ public class SkillManager extends GeneralManager {
 
         registerMechanic("feed", config -> new FeedMechanic(config));
         registerMechanic("heal", config -> new HealMechanic(config));
-        registerMechanic("reduce_cooldown", config -> new ReduceCooldownMechanic(config));
+        registerMechanic("reduce_cooldown", ReduceCooldownMechanic::new, "reduce_cd", "decrease_cooldown", "decrease_cd");
         registerMechanic("saturate", config -> new SaturateMechanic(config));
 
         registerMechanic("apply_cooldown", ApplyCooldownMechanic::new, "apply_cd");
