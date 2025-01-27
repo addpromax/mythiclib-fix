@@ -181,11 +181,13 @@ public class MythicLib extends MMOPluginImpl {
             getLogger().log(Level.WARNING, "Could not hook onto hologram provider " + getConfig().getString("hologram-provider") + ", using default: " + throwable.getMessage());
         }
 
-        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) try {
             damageManager.registerHandler(new MythicMobsAttackHandler());
             Bukkit.getPluginManager().registerEvents(new MythicMobsHook(), this);
             MythicItemUIFilter.register();
             getLogger().log(Level.INFO, "Hooked onto MythicMobs");
+        } catch (Throwable throwable) {
+            getLogger().log(Level.INFO, "Could not hook onto MythicMobs: " + throwable.getMessage());
         }
 
         if (Bukkit.getPluginManager().getPlugin("Residence") != null) {
