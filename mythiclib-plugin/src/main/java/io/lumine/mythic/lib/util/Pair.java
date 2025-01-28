@@ -1,18 +1,20 @@
 package io.lumine.mythic.lib.util;
 
-import org.jetbrains.annotations.Nullable;
-
 public class Pair<L, R> {
-    private final @Nullable L left;
-    private final @Nullable R right;
+    private final L left;
+    private final R right;
 
-    private Pair(@Nullable L left, @Nullable R right) {
+    private Pair(L left, R right) {
         this.left = left;
         this.right = right;
     }
 
-    public @Nullable L getLeft() {
+    public L getLeft() {
         return this.left;
+    }
+
+    public R getRight() {
+        return this.right;
     }
 
     @Deprecated
@@ -20,16 +22,12 @@ public class Pair<L, R> {
         return this.left;
     }
 
-    public @Nullable R getRight() {
-        return this.right;
-    }
-
     @Deprecated
     public R getValue() {
         return this.right;
     }
 
-    public static <L, R> Pair<L, R> of(@Nullable L left, @Nullable R right) {
+    public static <L, R> Pair<L, R> of(L left, R right) {
         return new Pair<>(left, right);
     }
 }

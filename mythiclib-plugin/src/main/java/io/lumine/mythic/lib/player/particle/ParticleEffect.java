@@ -61,14 +61,14 @@ public abstract class ParticleEffect extends PlayerModifier implements Closeable
     private static final Map<String, Function<ConfigObject, ParticleEffect>> BY_NAME = new HashMap<>();
 
     static {
-        registerParticleEffectType("AURA", obj -> new AuraParticleEffect(obj));
-        registerParticleEffectType("DOUBLE_RINGS", obj -> new DoubleRingsParticleEffect(obj));
-        registerParticleEffectType("FIREFLIES", obj -> new FirefliesParticleEffect(obj));
-        registerParticleEffectType("GALAXY", obj -> new GalaxyParticleEffect(obj));
-        registerParticleEffectType("HELIX", obj -> new HelixParticleEffect(obj));
-        registerParticleEffectType("OFFSET", obj -> new OffsetParticleEffect(obj));
-        registerParticleEffectType("VORTEX", obj -> new VortexParticleEffect(obj));
-        registerParticleEffectType("AURA", obj -> new AuraParticleEffect(obj));
+        registerParticleEffectType("AURA", AuraParticleEffect::new);
+        registerParticleEffectType("DOUBLE_RINGS", DoubleRingsParticleEffect::new);
+        registerParticleEffectType("FIREFLIES", FirefliesParticleEffect::new);
+        registerParticleEffectType("GALAXY", GalaxyParticleEffect::new);
+        registerParticleEffectType("HELIX", HelixParticleEffect::new);
+        registerParticleEffectType("OFFSET", OffsetParticleEffect::new);
+        registerParticleEffectType("VORTEX", VortexParticleEffect::new);
+        registerParticleEffectType("AURA", AuraParticleEffect::new);
     }
 
     public static ParticleEffect fromConfig(ConfigObject obj) {

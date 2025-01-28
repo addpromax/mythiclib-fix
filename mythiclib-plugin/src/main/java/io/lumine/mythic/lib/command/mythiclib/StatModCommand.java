@@ -9,6 +9,7 @@ import io.lumine.mythic.lib.command.api.CommandTreeNode;
 import io.lumine.mythic.lib.command.api.Parameter;
 import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.modifier.ModifierType;
+import io.lumine.mythic.lib.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -44,8 +45,9 @@ public class StatModCommand extends CommandTreeNode {
 
         final String statName = UtilityMethods.enumName(args[2]);
         final MMOPlayerData playerData = MMOPlayerData.get(target);
-        final ModifierType type = args[3].toCharArray()[args[3].length() - 1] == '%' ? ModifierType.RELATIVE : ModifierType.FLAT;
-        final double value = Double.parseDouble(type == ModifierType.RELATIVE ? args[3].substring(0, args[3].length() - 1) : args[3]);
+        Pair<ModifierType, Double> modifierPair = ModifierType.pairFromString(args[3]);
+        final ModifierType type = modifierPair.getLeft();
+        final double value = modifierPair.getRight();
         final long duration = args.length > 4 ? Math.max(1, (long) Double.parseDouble(args[4])) : 0;
 
         if (duration <= 0)

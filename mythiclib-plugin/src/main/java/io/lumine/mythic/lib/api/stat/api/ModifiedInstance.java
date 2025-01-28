@@ -64,10 +64,19 @@ public abstract class ModifiedInstance<T extends InstanceModifier> {
      */
     public double getFilteredTotal(double base, Predicate<T> filter, Function<T, T> modification) {
 
+        // Flat
         for (T mod : modifiers.values())
             if (mod.getType() == ModifierType.FLAT && filter.test(mod))
                 base += modification.apply(mod).getValue();
 
+        // Additive scalars
+        double scalar = 1;
+        for (T mod : modifiers.values())
+            if (mod.getType() == ModifierType.ADDITIVE_MULTIPLIER && filter.test(mod))
+                scalar += modification.apply(mod).getValue() / 100;
+        base *= scalar;
+
+        // Multiplicative scalars
         for (T mod : modifiers.values())
             if (mod.getType() == ModifierType.RELATIVE && filter.test(mod))
                 base *= 1 + modification.apply(mod).getValue() / 100;
