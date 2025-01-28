@@ -76,7 +76,6 @@ public class MythicLib extends MMOPluginImpl {
     private final ConfigManager configManager = new ConfigManager(this);
     private final ElementManager elementManager = new ElementManager(this);
     private final SkillManager skillManager = new SkillManager(this);
-    private final ModifierManager modifierManager = new ModifierManager();
     private final FlagHandler flagHandler = new FlagHandler();
     private final IndicatorManager indicatorManager = new IndicatorManager();
     private final FakeEventManager fakeEventManager = new FakeEventManager();
@@ -346,10 +345,6 @@ public class MythicLib extends MMOPluginImpl {
 
     public SkillManager getSkills() {
         return skillManager;
-    }
-
-    public ModifierManager getModifiers() {
-        return modifierManager;
     }
 
     public ElementManager getElements() {

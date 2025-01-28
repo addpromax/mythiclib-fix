@@ -2,14 +2,15 @@ package io.lumine.mythic.lib.player.particle;
 
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
-import io.lumine.mythic.lib.util.Closeable;
 import io.lumine.mythic.lib.player.modifier.ModifierSource;
 import io.lumine.mythic.lib.player.modifier.PlayerModifier;
 import io.lumine.mythic.lib.player.particle.type.*;
+import io.lumine.mythic.lib.util.Closeable;
 import io.lumine.mythic.lib.util.configobject.ConfigObject;
 import io.lumine.mythic.lib.util.lang3.Validate;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +59,8 @@ public abstract class ParticleEffect extends PlayerModifier implements Closeable
         particleRunnable.cancel();
     }
 
+    //region Particle effect types
+
     private static final Map<String, Function<ConfigObject, ParticleEffect>> BY_NAME = new HashMap<>();
 
     static {
@@ -71,16 +74,19 @@ public abstract class ParticleEffect extends PlayerModifier implements Closeable
         registerParticleEffectType("AURA", AuraParticleEffect::new);
     }
 
-    public static ParticleEffect fromConfig(ConfigObject obj) {
-        Function<ConfigObject, ParticleEffect> configReader = BY_NAME.get(obj.getString("particle-effect"));
-        Validate.notNull(configReader, "Could not find particle effect type with ID '" + obj.getString("particle-effect") + "'");
-        return configReader.apply(obj);
-    }
-
     public static void registerParticleEffectType(String id, Function<ConfigObject, ParticleEffect> configReader) {
         Validate.notNull(id, "Identifier cannot be null");
         Validate.notNull(configReader, "Function cannot be null");
 
         BY_NAME.put(id, configReader);
+    }
+
+    //endregion
+
+    @NotNull
+    public static ParticleEffect fromConfig(@NotNull ConfigObject obj) {
+        Function<ConfigObject, ParticleEffect> configReader = BY_NAME.get(obj.getString("particle-effect"));
+        Validate.notNull(configReader, "Could not find particle effect type with ID '" + obj.getString("particle-effect") + "'");
+        return configReader.apply(obj);
     }
 }

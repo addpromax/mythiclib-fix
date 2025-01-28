@@ -61,6 +61,7 @@ public class PassiveSkill extends PlayerModifier {
         this(key, triggered, EquipmentSlot.OTHER, ModifierSource.OTHER);
     }
 
+    @Deprecated
     public PassiveSkill(ConfigObject obj) {
         super(obj.getString("key"), EquipmentSlot.OTHER, ModifierSource.OTHER);
 
@@ -93,5 +94,11 @@ public class PassiveSkill extends PlayerModifier {
     @Override
     public void unregister(MMOPlayerData playerData) {
         playerData.getPassiveSkillMap().removeModifier(getUniqueId());
+    }
+
+    @NotNull
+    public static PassiveSkill from(@NotNull ConfigObject config) {
+        // TODO improve logic. allow for mythiclib skills, scripts, mm skills....
+        return new PassiveSkill(config);
     }
 }
