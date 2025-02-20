@@ -72,7 +72,7 @@ public class UtilityMethods {
     }
 
     public static int getPageNumber(int elements, int perPage) {
-        return Math.ceilDiv(Math.min(1, elements), perPage);
+        return Math.ceilDiv(Math.max(1, elements), perPage);
     }
 
     public static void forcePotionEffect(LivingEntity entity, PotionEffectType type, double duration, int amplifier) {
@@ -198,23 +198,35 @@ public class UtilityMethods {
         return item == null || item.getType() == Material.AIR;
     }
 
+    private final static char[] DELAY_CHARACTERS_SECONDS = {'s', 'm', 'h', 'd', 'm', 'y'};
+    private final static long[] DELAY_AMOUNTS_SECONDS = {1, 60, 60 * 60, 60 * 60 * 24, 60 * 60 * 24 * 30, 60 * 60 * 24 * 30 * 365};
+
     private final static char[] DELAY_CHARACTERS = {'m', 'h', 'd', 'm', 'y'};
     private final static long[] DELAY_AMOUNTS = {60, 60 * 60, 60 * 60 * 24, 60 * 60 * 24 * 30, 60 * 60 * 24 * 30 * 365};
 
     public static String formatDelay(long millis) {
+        return formatDelay(millis, false);
+    }
 
-        if (millis < 1000 * 60) return "1m";
+    public static String formatDelay(long millis, boolean seconds) {
 
-        String format = "";
-        for (int j = DELAY_CHARACTERS.length - 1; j >= 0; j--) {
-            long divisor = DELAY_AMOUNTS[j] * 1000;
+        long threshold = seconds ? 1000 : 1000 * 60;
+        if (millis <= threshold) return seconds ? "1s" : "1m";
+
+        char[] chars = seconds ? DELAY_CHARACTERS_SECONDS : DELAY_CHARACTERS;
+        long[] amounts = seconds ? DELAY_AMOUNTS_SECONDS : DELAY_AMOUNTS;
+
+        StringBuilder builder = new StringBuilder();
+        for (int j = chars.length - 1; j >= 0; j--) {
+            long divisor = amounts[j] * 1000;
             if (millis < divisor) continue;
 
-            format = (millis / divisor) + DELAY_CHARACTERS[j] + " " + format;
+            long quotient = millis / divisor;
+            builder.append(' ').append(chars[j]).append(new StringBuilder(String.valueOf(quotient)).reverse());
             millis = millis % divisor;
         }
 
-        return format;
+        return builder.reverse().toString();
     }
 
     private static final int PTS_PER_BLOCK = 10;

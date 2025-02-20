@@ -19,7 +19,7 @@ public class NextPageItem<T extends GeneratedInventory> extends PhysicalItem<T> 
 
     @Override
     public boolean isDisplayed(@NotNull T inv) {
-        return inv.page > 1;
+        return inv.page < inv.getMaxPage();
     }
 
     @Override
