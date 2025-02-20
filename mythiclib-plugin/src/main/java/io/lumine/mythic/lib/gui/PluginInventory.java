@@ -83,7 +83,7 @@ public abstract class PluginInventory implements InventoryHolder {
         Validate.isTrue(navigator.backgroundTask == null, "Background task already running");
 
         navigator.backgroundTask = Bukkit.getScheduler().runTaskTimer(MythicLib.plugin, () -> {
-            Inventory opened = Objects.requireNonNull(player.getOpenInventory().getTopInventory());
+            Inventory opened = Objects.requireNonNull(VersionUtils.getOpen(player).getTopInventory());
             Inventory tracked = navigator.getLastBukkitOpened();
 
             // Should be the same physical objects

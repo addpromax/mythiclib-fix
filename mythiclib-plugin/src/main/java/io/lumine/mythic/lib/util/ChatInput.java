@@ -1,4 +1,4 @@
-package io.lumine.mythic.lib.api.explorer;
+package io.lumine.mythic.lib.util;
 
 import io.lumine.mythic.lib.MythicLib;
 import org.bukkit.Bukkit;

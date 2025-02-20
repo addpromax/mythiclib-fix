@@ -2,8 +2,8 @@ package io.lumine.mythic.lib.gui.builtin;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
-import io.lumine.mythic.lib.api.explorer.ChatInput;
-import io.lumine.mythic.lib.api.explorer.ItemBuilder;
+import io.lumine.mythic.lib.util.ChatInput;
+import io.lumine.mythic.lib.util.ItemBuilder;
 import io.lumine.mythic.lib.api.stat.handler.AttributeStatHandler;
 import io.lumine.mythic.lib.api.util.AltChar;
 import io.lumine.mythic.lib.gui.PluginInventory;
