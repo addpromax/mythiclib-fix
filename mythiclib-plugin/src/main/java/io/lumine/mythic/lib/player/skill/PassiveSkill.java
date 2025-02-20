@@ -65,7 +65,7 @@ public class PassiveSkill extends PlayerModifier {
     public PassiveSkill(ConfigObject obj) {
         super(obj.getString("key"), EquipmentSlot.OTHER, ModifierSource.OTHER);
 
-        triggered = new SimpleSkill(TriggerType.API, MythicLib.plugin.getSkills().getHandlerOrThrow(obj.getString("skill")));
+        triggered = new SimpleSkill(MythicLib.plugin.getSkills().getHandlerOrThrow(obj.getString("skill")));
     }
 
     @NotNull

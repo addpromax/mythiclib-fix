@@ -30,6 +30,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -67,6 +69,10 @@ public class UtilityMethods {
         final double normSquared = vec.lengthSquared();
         if (normSquared == 0) return defaultValue;
         return vec.multiply(1d / Math.sqrt(normSquared));
+    }
+
+    public static int getPageNumber(int elements, int perPage) {
+        return Math.ceilDiv(Math.min(1, elements), perPage);
     }
 
     public static void forcePotionEffect(LivingEntity entity, PotionEffectType type, double duration, int amplifier) {
@@ -320,7 +326,7 @@ public class UtilityMethods {
 
         // Default value if any
         if (defaultValue != null) return Objects.requireNonNull(defaultValue.get(), "Null supplied default value");
-     
+
         // Error otherwise
         throw new RuntimeException("Could not find enum field given candidates " + Arrays.asList(candidates));
     }
@@ -418,7 +424,17 @@ public class UtilityMethods {
     public static void closeOpenViewsOfType(Class<?> inventoryHolderClass) {
         for (Player online : Bukkit.getOnlinePlayers()) {
             final VInventoryView view = VersionUtils.getOpen(online);
-            if (inventoryHolderClass.isInstance(view.getTopInventory().getHolder())) view.close();
+            if (inventoryHolderClass.isInstance(getHolder(view.getTopInventory()))) view.close();
+        }
+    }
+
+    @Nullable
+    public static InventoryHolder getHolder(Inventory inventory) {
+        Validate.notNull(inventory, "Inventory cannot be null");
+        try {
+            return inventory.getHolder(false);
+        } catch (Throwable throwable) {
+            return inventory.getHolder();
         }
     }
 

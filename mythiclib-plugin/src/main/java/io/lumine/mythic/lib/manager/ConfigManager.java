@@ -74,13 +74,13 @@ public class ConfigManager extends GeneralManager {
         castingDelayBarStyle = UtilityMethods.resolveField(BarStyle::valueOf, () -> BarStyle.SEGMENTED_20, config.getString("casting-delay.bossbar.style", "SEGMENTED_20"));
         try {
             skillCastScript = config.getBoolean("casting-delay.cast-script.enabled") ?
-                    new SimpleSkill(TriggerType.CAST, new MythicLibSkillHandler(MythicLib.plugin.getSkills().loadScript(config.get("casting-delay.cast-script.script")))) : null;
+                    new SimpleSkill(TriggerType.CAST, new MythicLibSkillHandler(MythicLib.plugin.getSkills().loadScript(config, "casting-delay.cast-script.script"))) : null;
         } catch (IllegalArgumentException exception) {
             skillCastScript = null;
         }
         try {
             skillCancelScript = config.getBoolean("casting-delay.cancel-script.enabled") ?
-                    new SimpleSkill(TriggerType.CAST, new MythicLibSkillHandler(MythicLib.plugin.getSkills().loadScript(config.get("casting-delay.cancel-script.script")))) : null;
+                    new SimpleSkill(TriggerType.CAST, new MythicLibSkillHandler(MythicLib.plugin.getSkills().loadScript(config, "casting-delay.cancel-script.script"))) : null;
         } catch (IllegalArgumentException exception) {
             skillCancelScript = null;
         }
