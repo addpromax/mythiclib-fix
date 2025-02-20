@@ -4,15 +4,24 @@ import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.trigger.TriggerType;
 import org.jetbrains.annotations.NotNull;
 
-public class SimpleSkill extends Skill {
-    private final SkillHandler<?> handler;
+import java.util.HashMap;
+import java.util.Map;
 
-    public SimpleSkill(SkillHandler<?> handler) {
+/**
+ * Can be used to cast a skill handler with configurable modifier input.
+ *
+ * @author jules
+ */
+public class ModifiableSkill extends Skill {
+    private final SkillHandler<?> handler;
+    private final Map<String, Double> modifiers = new HashMap<>();
+
+    public ModifiableSkill(SkillHandler<?> handler) {
         this(TriggerType.API, handler);
     }
 
-    public SimpleSkill(TriggerType triggerType, SkillHandler<?> handler) {
-        super(triggerType);
+    public ModifiableSkill(TriggerType trigger, SkillHandler<?> handler) {
+        super(trigger);
 
         this.handler = handler;
     }
@@ -29,12 +38,16 @@ public class SimpleSkill extends Skill {
 
     @Override
     public double getParameter(String path) {
-        return 0;
+        return modifiers.getOrDefault(path, 0d);
     }
 
     @Override
     @NotNull
     public SkillHandler<?> getHandler() {
         return handler;
+    }
+
+    public void registerModifier(String path, double value) {
+        modifiers.put(path, value);
     }
 }

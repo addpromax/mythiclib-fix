@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShootArrowMechanic extends DirectionMechanic {
-
     private final boolean fromItem, playerAttackDamage;
     private final DoubleFormula velocity;
 

@@ -102,7 +102,6 @@ public abstract class Skill implements CooldownObject {
      * @param skillMeta Info of skill being cast
      * @return If the skill can be cast
      */
-    @NotNull
     public abstract boolean getResult(@NotNull SkillMetadata skillMeta);
 
     /**
