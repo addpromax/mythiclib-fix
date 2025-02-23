@@ -7,6 +7,7 @@ import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.comp.interaction.InteractionType;
 import io.lumine.mythic.lib.player.PlayerMetadata;
+import io.lumine.mythic.lib.util.DelayFormat;
 import io.lumine.mythic.lib.util.Tasks;
 import io.lumine.mythic.lib.util.annotation.BackwardsCompatibility;
 import io.lumine.mythic.lib.util.configobject.ConfigObject;
@@ -198,35 +199,17 @@ public class UtilityMethods {
         return item == null || item.getType() == Material.AIR;
     }
 
-    private final static char[] DELAY_CHARACTERS_SECONDS = {'s', 'm', 'h', 'd', 'm', 'y'};
-    private final static long[] DELAY_AMOUNTS_SECONDS = {1, 60, 60 * 60, 60 * 60 * 24, 60 * 60 * 24 * 30, 60 * 60 * 24 * 30 * 365};
+    private static final DelayFormat DELAY_FORMAT_SECONDS = new DelayFormat("smhdMy");
+    private static final DelayFormat DELAY_FORMAT_MINUTES = new DelayFormat("mhdMy");
 
-    private final static char[] DELAY_CHARACTERS = {'m', 'h', 'd', 'm', 'y'};
-    private final static long[] DELAY_AMOUNTS = {60, 60 * 60, 60 * 60 * 24, 60 * 60 * 24 * 30, 60 * 60 * 24 * 30 * 365};
-
+    @Deprecated
     public static String formatDelay(long millis) {
-        return formatDelay(millis, false);
+        return DELAY_FORMAT_MINUTES.format(millis);
     }
 
+    @Deprecated
     public static String formatDelay(long millis, boolean seconds) {
-
-        long threshold = seconds ? 1000 : 1000 * 60;
-        if (millis <= threshold) return seconds ? "1s" : "1m";
-
-        char[] chars = seconds ? DELAY_CHARACTERS_SECONDS : DELAY_CHARACTERS;
-        long[] amounts = seconds ? DELAY_AMOUNTS_SECONDS : DELAY_AMOUNTS;
-
-        StringBuilder builder = new StringBuilder();
-        for (int j = chars.length - 1; j >= 0; j--) {
-            long divisor = amounts[j] * 1000;
-            if (millis < divisor) continue;
-
-            long quotient = millis / divisor;
-            builder.append(' ').append(chars[j]).append(new StringBuilder(String.valueOf(quotient)).reverse());
-            millis = millis % divisor;
-        }
-
-        return builder.reverse().toString();
+        return (seconds ? DELAY_FORMAT_SECONDS : DELAY_FORMAT_MINUTES).format(millis);
     }
 
     private static final int PTS_PER_BLOCK = 10;

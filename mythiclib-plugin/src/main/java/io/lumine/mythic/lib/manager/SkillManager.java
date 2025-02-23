@@ -430,6 +430,17 @@ public class SkillManager extends Module {
         registration = true;
     }
 
+    @Deprecated
+    public void initialize(boolean clearFirst) {
+        if (clearFirst) {
+            reload();
+        } else try {
+            enable();
+        } catch(Exception exception) {
+            reload();
+        }
+    }
+
     @Override
     public void onStartup() {
 
