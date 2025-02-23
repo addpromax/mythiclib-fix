@@ -2,6 +2,7 @@ package io.lumine.mythic.lib.gui;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
+import io.lumine.mythic.lib.util.Tasks;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -37,7 +38,7 @@ public class Navigator implements Listener {
 
     private Inventory lastBukkitOpened;
     public BukkitTask backgroundTask;
-    private boolean canClose = true, closed;
+    private boolean canClose = true, closed = true;
 
     /**
      * Temporarily disables the navigator event listeners without fully
@@ -56,7 +57,9 @@ public class Navigator implements Listener {
     public Navigator(@NotNull MMOPlayerData playerData) {
         this.playerData = Objects.requireNonNull(playerData);
         this.player = playerData.getPlayer();
+    }
 
+    private void registerEvents() {
         Bukkit.getPluginManager().registerEvents(this, MythicLib.plugin);
     }
 
@@ -113,9 +116,15 @@ public class Navigator implements Listener {
         final Inventory bukkitInventory = upmost.getInventory(); // Generate Bukkit inventory
         lastBukkitOpened = bukkitInventory;
 
+        // Reopen listeners if necessary
+        if (closed) {
+            registerEvents();
+            closed = false;
+        }
+
         // Only then we open the inventory on sync
         if (Bukkit.isPrimaryThread()) openToPlayer(bukkitInventory);
-        else Bukkit.getScheduler().runTask(MythicLib.plugin, () -> openToPlayer(bukkitInventory));
+        else Tasks.runSync(MythicLib.plugin, () -> openToPlayer(bukkitInventory));
 
         // Start task
         upmost.startBackgroundTask();
@@ -125,16 +134,16 @@ public class Navigator implements Listener {
 
     private void openToPlayer(@NotNull Inventory bukkitInventory) {
         /*
-         * This makes sure that closing the current inventory does not
-         * close this navigator.
+         * This makes sure that closing the current
+         * inventory does not close this navigator.
          */
         onHold = true;
 
         playerData.getPlayer().openInventory(bukkitInventory);
 
         /*
-         * This makes sure that subsequent clicks and closes will be
-         * registered once the inventory is opened.
+         * This makes sure that subsequent clicks and closes
+         * will be registered once the inventory is opened.
          */
         onHold = false;
     }

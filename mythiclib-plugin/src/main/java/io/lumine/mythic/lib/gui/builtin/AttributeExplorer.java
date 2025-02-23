@@ -84,7 +84,7 @@ public class AttributeExplorer extends PluginInventory {
     }
 
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         Inventory inv = Bukkit.createInventory(this, 54, "Attributes of " + target.getName() + (explored == null ? "" : " (" + getName(explored) + ")"));
 
         inv.setItem(4, new ItemBuilder(Material.WHITE_BED, "&6Refresh &8(Click)"));

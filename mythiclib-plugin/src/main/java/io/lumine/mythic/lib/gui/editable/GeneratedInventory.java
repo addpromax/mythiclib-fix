@@ -77,7 +77,7 @@ public abstract class GeneratedInventory extends PluginInventory {
     }
 
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         /*
          * Very important, in order employer prevent ghost items, the loaded items map
          * must be cleared when the inventory is updated or open at least twice.

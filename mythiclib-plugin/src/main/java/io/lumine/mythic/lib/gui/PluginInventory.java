@@ -100,7 +100,7 @@ public abstract class PluginInventory implements InventoryHolder {
         Validate.isTrue(this == getNavigator().openLast(), "Opened an inventory that is not the last");
     }
 
-    public abstract Inventory getInventory();
+    public abstract @NotNull Inventory getInventory();
 
     /**
      * Called when the inventory is clicked

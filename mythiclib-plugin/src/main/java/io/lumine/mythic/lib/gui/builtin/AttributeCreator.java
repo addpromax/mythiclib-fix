@@ -47,7 +47,7 @@ public class AttributeCreator extends PluginInventory {
     }
 
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         Inventory inv = Bukkit.createInventory(this, 36, "Attribute Creation..");
 
         if (!legacy) {

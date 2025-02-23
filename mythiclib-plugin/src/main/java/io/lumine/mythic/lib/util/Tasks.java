@@ -155,6 +155,10 @@ public class Tasks {
         return future;
     }
 
+    public static void runSync(@NotNull Plugin plugin, @NotNull Runnable runnable) {
+        Bukkit.getScheduler().runTask(plugin, runnable);
+    }
+
     /**
      * Wraps a task inside a sync block to make sure the task runs
      * in sync. Handy util when working with completable futures.
