@@ -71,21 +71,20 @@ public class MythicLib extends MMOPluginImpl {
     private final DamageManager damageManager = new DamageManager(this);
     private final MythicLibCommandManager commandManager = new MythicLibCommandManager();
     private final EntityManager entityManager = new EntityManager();
-    private final StatManager statManager = new StatManager();
-    private final JsonManager jsonManager = new JsonManager();
+    private final StatManager statManager = new StatManager(this);
     private final ConfigManager configManager = new ConfigManager(this);
     private final ElementManager elementManager = new ElementManager(this);
     private final SkillManager skillManager = new SkillManager(this);
     private final FlagHandler flagHandler = new FlagHandler();
     private final IndicatorManager indicatorManager = new IndicatorManager();
     private final FakeEventManager fakeEventManager = new FakeEventManager();
+    private final AttackEffects attackEffects = new AttackEffects(this);
+    private final MitigationMechanics mitigationMechanics = new MitigationMechanics(this);
     private final List<MMOPlugin> mmoPlugins = new ArrayList<>();
     private Gson gson;
     private AntiCheatSupport antiCheatSupport;
     private ServerVersion version;
     private HologramFactory hologramFactory;
-    private AttackEffects attackEffects;
-    private MitigationMechanics mitigationMechanics;
     private AdventureParser adventureParser;
     private PlaceholderParser placeholderParser;
     private GlowModule glowModule;
@@ -144,9 +143,9 @@ public class MythicLib extends MMOPluginImpl {
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(damageManager, this);
         Bukkit.getPluginManager().registerEvents(new DamageReduction(), this);
-        Bukkit.getPluginManager().registerEvents(attackEffects = new AttackEffects(), this);
+        attackEffects.enable();
         Bukkit.getPluginManager().registerEvents(new CustomProjectileDamage(), this);
-        Bukkit.getPluginManager().registerEvents(mitigationMechanics = new MitigationMechanics(), this);
+        mitigationMechanics.enable();
         Bukkit.getPluginManager().registerEvents(new AttackEventListener(), this);
         Bukkit.getPluginManager().registerEvents(new MythicCraftingManager(), this);
         Bukkit.getPluginManager().registerEvents(new SkillTriggers(), this);
@@ -267,10 +266,10 @@ public class MythicLib extends MMOPluginImpl {
         commandManager.initialize(false);
 
         // Load local skills
-        skillManager.initialize(false);
+        skillManager.enable();
 
         // Load elements
-        elementManager.reload(false);
+        elementManager.enable();
 
         // Load player data of online players
         Bukkit.getOnlinePlayers().forEach(MMOPlayerData::setup);
@@ -279,17 +278,17 @@ public class MythicLib extends MMOPluginImpl {
         Bukkit.getScheduler().runTaskTimer(this, MMOPlayerData::flushOfflinePlayerData, 20 * 60 * 60, 20 * 60 * 60);
 
         configManager.enable();
-        statManager.initialize(false);
+        statManager.enable();
     }
 
     public void reload() {
         reloadConfig();
-        statManager.initialize(true);
+        statManager.reload();
         attackEffects.reload();
         mitigationMechanics.reload();
-        skillManager.initialize(true);
+        skillManager.reload();
         configManager.reload();
-        elementManager.reload(true);
+        elementManager.reload();
         this.indicatorManager.reload(getConfig());
 
         // Flush outdated data

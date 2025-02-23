@@ -2,8 +2,8 @@ package io.lumine.mythic.lib.manager;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
-import io.lumine.mythic.lib.module.GeneralManager;
 import io.lumine.mythic.lib.module.MMOPluginImpl;
+import io.lumine.mythic.lib.module.Module;
 import io.lumine.mythic.lib.module.ModuleInfo;
 import io.lumine.mythic.lib.script.Script;
 import io.lumine.mythic.lib.script.condition.Condition;
@@ -89,8 +89,8 @@ import java.util.logging.Level;
  *
  * @author jules
  */
-@ModuleInfo(key = "stats", load = false)
-public class SkillManager extends GeneralManager {
+@ModuleInfo(key = "skills")
+public class SkillManager extends Module {
     private final Map<String, Function<ConfigObject, Mechanic>> mechanics = new HashMap<>();
     private final Map<String, Function<ConfigObject, Condition>> conditions = new HashMap<>();
     private final Map<String, Function<ConfigObject, EntityTargeter>> entityTargets = new HashMap<>();
@@ -211,20 +211,20 @@ public class SkillManager extends GeneralManager {
         registerCondition("in_between", config -> new InBetweenCondition(config));
         registerCondition("string_equals", config -> new StringEqualsCondition(config));
 
-        registerCondition("biome", config -> new BiomeCondition(config));
-        registerCondition("cuboid", config -> new CuboidCondition(config));
-        registerCondition("distance", config -> new DistanceCondition(config));
-        registerCondition("world", config -> new WorldCondition(config));
+        registerCondition("biome", BiomeCondition::new);
+        registerCondition("cuboid", CuboidCondition::new);
+        registerCondition("distance", DistanceCondition::new);
+        registerCondition("world", WorldCondition::new);
 
-        registerCondition("can_target", config -> new CanTargetCondition(config), "can_tgt", "cantarget", "ctgt");
-        registerCondition("cooldown", config -> new CooldownCondition(config));
-        registerCondition("food", config -> new FoodCondition(config));
+        registerCondition("can_target", CanTargetCondition::new, "can_tgt", "cantarget", "ctgt");
+        registerCondition("cooldown", CooldownCondition::new);
+        registerCondition("food", FoodCondition::new);
         registerCondition("ammo", HasAmmoCondition::new);
-        registerCondition("has_damage_type", config -> new HasDamageTypeCondition(config));
-        registerCondition("is_living", config -> new IsLivingCondition(config));
-        registerCondition("on_fire", config -> new OnFireCondition(config));
-        registerCondition("permission", config -> new PermissionCondition(config));
-        registerCondition("time", config -> new TimeCondition(config));
+        registerCondition("has_damage_type", HasDamageTypeCondition::new);
+        registerCondition("is_living", IsLivingCondition::new);
+        registerCondition("on_fire", OnFireCondition::new);
+        registerCondition("permission", PermissionCondition::new);
+        registerCondition("time", TimeCondition::new);
 
         // Default skill handler types
         registerSkillHandlerType(config -> config.contains("mythiclib-skill-id"), config -> new MythicLibSkillHandler(config, getScriptOrThrow(config.getString("mythiclib-skill-id"))));
@@ -419,35 +419,43 @@ public class SkillManager extends GeneralManager {
         return supplier.apply(config);
     }
 
-    public void initialize(boolean clearBefore) {
-        if (clearBefore) {
-            for (SkillHandler<?> handler : handlers.values())
-                if (handler instanceof Listener) HandlerList.unregisterAll((Listener) handler);
+    @Override
+    public void onReset() {
+        for (SkillHandler<?> handler : handlers.values())
+            if (handler instanceof Listener) HandlerList.unregisterAll((Listener) handler);
 
-            handlers.clear();
-            scripts.clear();
-        } else {
-            registration = false;
+        handlers.clear();
+        scripts.clear();
 
-            // mkdir skill folder
-            File skillsFolder = new File(MythicLib.plugin.getDataFolder() + "/skill");
-            if (!skillsFolder.exists()) skillsFolder.mkdir();
+        registration = true;
+    }
 
-            // mkdir script folder
-            File scriptFolder = new File(MythicLib.plugin.getDataFolder() + "/script");
-            if (!scriptFolder.exists()) {
-                UtilityMethods.loadDefaultFile("script", "elemental_attacks.yml");
-                UtilityMethods.loadDefaultFile("script", "mmoitems_scripts.yml");
-                UtilityMethods.loadDefaultFile("script", "example_skills.yml");
-            }
+    @Override
+    public void onStartup() {
 
-            // MythicMobs skill handler type
-            if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null)
-                registerSkillHandlerType(config -> config.contains("mythicmobs-skill-id"), MythicMobsSkillHandler::new);
+        // MythicMobs skill handler type
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null)
+            registerSkillHandlerType(config -> config.contains("mythicmobs-skill-id"), MythicMobsSkillHandler::new);
 
-            // Fabled skill handler type
-            if (Bukkit.getPluginManager().getPlugin("Fabled") != null)
-                registerSkillHandlerType(config -> config.contains("fabled-skill-id") || config.contains("skillapi-skill-id"), FabledSkillHandler::new);
+        // Fabled skill handler type
+        if (Bukkit.getPluginManager().getPlugin("Fabled") != null)
+            registerSkillHandlerType(config -> config.contains("fabled-skill-id") || config.contains("skillapi-skill-id"), FabledSkillHandler::new);
+    }
+
+    @Override
+    public void onEnable() {
+        registration = false;
+
+        // mkdir skill folder
+        File skillsFolder = new File(MythicLib.plugin.getDataFolder() + "/skill");
+        if (!skillsFolder.exists()) skillsFolder.mkdir();
+
+        // mkdir script folder
+        File scriptFolder = new File(MythicLib.plugin.getDataFolder() + "/script");
+        if (!scriptFolder.exists()) {
+            UtilityMethods.loadDefaultFile("script", "elemental_attacks.yml");
+            UtilityMethods.loadDefaultFile("script", "mmoitems_scripts.yml");
+            UtilityMethods.loadDefaultFile("script", "example_skills.yml");
         }
 
         // Load default skills

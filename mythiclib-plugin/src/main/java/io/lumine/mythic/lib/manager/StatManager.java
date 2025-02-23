@@ -10,6 +10,9 @@ import io.lumine.mythic.lib.api.stat.handler.AttributeStatHandler;
 import io.lumine.mythic.lib.api.stat.handler.DelegateStatHandler;
 import io.lumine.mythic.lib.api.stat.handler.MovementSpeedStatHandler;
 import io.lumine.mythic.lib.api.stat.handler.StatHandler;
+import io.lumine.mythic.lib.module.MMOPluginImpl;
+import io.lumine.mythic.lib.module.Module;
+import io.lumine.mythic.lib.module.ModuleInfo;
 import io.lumine.mythic.lib.util.ConfigFile;
 import io.lumine.mythic.lib.util.lang3.Validate;
 import io.lumine.mythic.lib.version.VMaterial;
@@ -23,7 +26,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
-public class StatManager {
+@ModuleInfo(key = "stats")
+public class StatManager extends Module {
     private final Map<String, StatHandler> handlers = new HashMap<>();
 
     /**
@@ -31,10 +35,17 @@ public class StatManager {
      */
     private final Map<org.bukkit.attribute.Attribute, Double> playerDefaultBaseValues = new HashMap<>();
 
-    public void initialize(boolean clearBefore) {
-        if (clearBefore) handlers.clear();
-        else UtilityMethods.loadDefaultFile("", "stats.yml");
+    public StatManager(MMOPluginImpl plugin) {
+        super(plugin);
+    }
 
+    @Override
+    public void onEnable() {
+
+        // Load default file
+        UtilityMethods.loadDefaultFile("", "stats.yml");
+
+        // Register default stats
         final ConfigurationSection statsConfig = new ConfigFile("stats").getConfig();
 
         // Default stat handlers
@@ -93,6 +104,24 @@ public class StatManager {
             } catch (RuntimeException exception) {
                 MythicLib.plugin.getLogger().log(Level.WARNING, "Could not load stat handler '" + key + "': " + exception.getMessage());
             }
+    }
+
+    @Override
+    public void onReset() {
+        handlers.clear();
+        playerDefaultBaseValues.clear();
+    }
+
+    @Deprecated
+    public void initialize(boolean clearBefore) {
+        if (clearBefore) {
+            reset();
+            onLoad();
+            onEnable();
+        } else {
+            onLoad();
+            onEnable();
+        }
     }
 
     @NotNull
@@ -156,6 +185,7 @@ public class StatManager {
         return handlers.values();
     }
 
+    @Deprecated
     public void clearRegisteredStats(Predicate<StatHandler> filter) {
         final Iterator<StatHandler> ite = handlers.values().iterator();
         while (ite.hasNext()) if (filter.test(ite.next())) ite.remove();
