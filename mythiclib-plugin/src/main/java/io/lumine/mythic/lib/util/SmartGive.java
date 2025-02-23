@@ -11,7 +11,6 @@ public class SmartGive {
     private final Inventory inv;
     private final Location loc;
 
-    @Deprecated
     public SmartGive(Player player) {
         inv = player.getInventory();
         loc = player.getLocation();
