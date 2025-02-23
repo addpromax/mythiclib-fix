@@ -319,7 +319,12 @@ public class MythicLib extends MMOPluginImpl {
 
     @Deprecated
     public JsonManager getJson() {
-        return jsonManager;
+        return new JsonManager();
+    }
+
+    @Deprecated
+    public SkillModifierManager getModifiers() {
+        return new SkillModifierManager();
     }
 
     public FakeEventManager getFakeEvents() {
