@@ -83,29 +83,34 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
     public ItemStack getDisplayedItem(T inv, int n) {
         Placeholders placeholders = getPlaceholders(inv, n);
         ItemStack item = new ItemStack(material);
+
+        // Meta can sometimes be null with AIR for instance)
         ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
 
-        if (hasName())
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', placeholders.apply(inv.getPlayer(), getName())));
+            if (hasName())
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', placeholders.apply(inv.getPlayer(), getName())));
 
-        if (hideFlags()) meta.addItemFlags(ItemFlag.values());
+            if (hideFlags()) meta.addItemFlags(ItemFlag.values());
 
-        if (hasLore()) {
-            List<String> lore = new ArrayList<>();
-            for (String line : getLore()) {
-                //Enables to have placeholders for a list of item. Color codes for the placeholders also (e.g player can introduce color codes in their input).
-                String[] parsed = ChatColor.translateAlternateColorCodes('&', placeholders.apply(inv.getPlayer(), line)).split("\n");
-                for (String str : parsed) {
-                    lore.add(ChatColor.GRAY + str);
+            if (hasLore()) {
+                List<String> lore = new ArrayList<>();
+                for (String line : getLore()) {
+                    //Enables to have placeholders for a list of item. Color codes for the placeholders also (e.g player can introduce color codes in their input).
+                    String[] parsed = ChatColor.translateAlternateColorCodes('&', placeholders.apply(inv.getPlayer(), line)).split("\n");
+                    for (String str : parsed) {
+                        lore.add(ChatColor.GRAY + str);
+                    }
                 }
+                meta.setLore(lore);
             }
-            meta.setLore(lore);
+
+            meta.setCustomModelData(getModelData());
+            if (texture != null && meta instanceof SkullMeta) UtilityMethods.setTextureValue((SkullMeta) meta, texture);
+
+            item.setItemMeta(meta);
         }
 
-        meta.setCustomModelData(getModelData());
-        if (texture != null && meta instanceof SkullMeta) UtilityMethods.setTextureValue((SkullMeta) meta, texture);
-
-        item.setItemMeta(meta);
         return item;
     }
 
