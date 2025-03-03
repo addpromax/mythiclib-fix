@@ -112,18 +112,6 @@ public class StatManager extends Module {
         playerDefaultBaseValues.clear();
     }
 
-    @Deprecated
-    public void initialize(boolean clearBefore) {
-        if (clearBefore) {
-            reset();
-            onLoad();
-            onEnable();
-        } else {
-            onLoad();
-            onEnable();
-        }
-    }
-
     @NotNull
     private Iterable<String> collectReferencedStats(ConfigurationSection config) {
         final List<String> keys = new ArrayList<>();
@@ -185,10 +173,23 @@ public class StatManager extends Module {
         return handlers.values();
     }
 
+    //region Deprecated
+
+    @Deprecated
+    public void initialize(boolean clearBefore) {
+        if (clearBefore) {
+            reset();
+            onLoad();
+            onEnable();
+        } else {
+            onLoad();
+            onEnable();
+        }
+    }
+
     @Deprecated
     public void clearRegisteredStats(Predicate<StatHandler> filter) {
-        final Iterator<StatHandler> ite = handlers.values().iterator();
-        while (ite.hasNext()) if (filter.test(ite.next())) ite.remove();
+        handlers.values().removeIf(filter);
     }
 
     @Deprecated
@@ -234,4 +235,6 @@ public class StatManager extends Module {
 
         handlers.put(stat, handler);
     }
+
+    //endregion
 }

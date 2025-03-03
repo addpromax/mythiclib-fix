@@ -48,6 +48,15 @@ public enum EquipmentSlot {
     ACCESSORY(false, false, null),
 
     /**
+     * When placed somewhere inside the player's inventory. It
+     * is primarily used for MMOItems ornaments so that items anywhere
+     * in the player's inventory may apply their stats.
+     *
+     * @see ModifierSource#ORNAMENT
+     */
+    INVENTORY(false, false, null),
+
+    /**
      * When placed in main hand.
      */
     MAIN_HAND(false, true, org.bukkit.inventory.EquipmentSlot.HAND),
@@ -149,6 +158,8 @@ public enum EquipmentSlot {
                 return equipmentSlot.body;
             case ACCESSORY:
                 return equipmentSlot == ACCESSORY;
+            case ORNAMENT:
+                return equipmentSlot == INVENTORY;
 
             default:
                 throw new NotImplementedException();
