@@ -12,10 +12,7 @@ import io.lumine.mythic.lib.util.Tasks;
 import io.lumine.mythic.lib.util.annotation.BackwardsCompatibility;
 import io.lumine.mythic.lib.util.configobject.ConfigObject;
 import io.lumine.mythic.lib.util.lang3.Validate;
-import io.lumine.mythic.lib.version.Attributes;
-import io.lumine.mythic.lib.version.VInventoryView;
-import io.lumine.mythic.lib.version.VParticle;
-import io.lumine.mythic.lib.version.VersionUtils;
+import io.lumine.mythic.lib.version.*;
 import io.lumine.mythic.lib.version.wrapper.VersionWrapper;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -79,6 +76,21 @@ public class UtilityMethods {
     public static void forcePotionEffect(LivingEntity entity, PotionEffectType type, double duration, int amplifier) {
         entity.removePotionEffect(type);
         entity.addPotionEffect(new PotionEffect(type, (int) (duration * 20), amplifier));
+    }
+
+    /**
+     * The last 5 seconds of nausea are useless, night vision flashes in the
+     * last 10 seconds, blindness takes a few seconds to decay as well, and
+     * there can be small server lags. It's best to apply a specific duration
+     * for every type of permanent effect.
+     *
+     * @param type Potion effect type
+     * @return The duration that MythicLib should be using to give player
+     *         "permanent" potion effects, depending on the potion effect type
+     */
+    public static int getPermanentEffectDuration(PotionEffectType type) {
+        return type.equals(PotionEffectType.NIGHT_VISION) || type.equals(VPotionEffectType.NAUSEA.get()) ? 260
+                : type.equals(PotionEffectType.BLINDNESS) ? 140 : 80;
     }
 
     @NotNull

@@ -6,10 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-/**
- * @deprecated Not implemented yet
- */
-@Deprecated
 public class ParticleEffectMap extends ModifierMap<ParticleEffect> {
     public ParticleEffectMap(MMOPlayerData playerData) {
         super(playerData);
@@ -17,13 +13,39 @@ public class ParticleEffectMap extends ModifierMap<ParticleEffect> {
 
     @Override
     public @Nullable ParticleEffect addModifier(ParticleEffect modifier) {
-        // TODO custom register function
+
+        // Throws an error otherwise
+        modifier.bindPlayer(playerData.getPlayer());
+
+        if (modifier.getType().hasPriority()) {
+            this.modifiers.values().forEach(ParticleEffect::stop); // If priority, cancel others
+            modifier.start(); // Start this one
+        } else if (this.modifiers.values().stream().noneMatch(effect -> effect.getType().hasPriority()))
+            modifier.start(); // If none are running with priority, start this one
+
         return super.addModifier(modifier);
     }
 
     @Override
     public @Nullable ParticleEffect removeModifier(UUID uuid) {
-        // TODO custom remove function
-        return super.removeModifier(uuid);
+        ParticleEffect removed = super.removeModifier(uuid);
+
+        // If removed one that has priority, cast one
+        if (removed != null && removed.getType().hasPriority()) startOneAgain();
+
+        return removed;
+    }
+
+    private void startOneAgain() {
+
+        // Start only one with priority
+        for (ParticleEffect remaining : this.modifiers.values())
+            if (remaining.getType().hasPriority()) {
+                remaining.start();
+                return;
+            }
+
+        // Start all of them
+        this.modifiers.values().forEach(ParticleEffect::start);
     }
 }

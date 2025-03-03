@@ -10,6 +10,7 @@ import io.lumine.mythic.lib.player.PlayerMetadata;
 import io.lumine.mythic.lib.player.cooldown.CooldownMap;
 import io.lumine.mythic.lib.player.cooldown.CooldownType;
 import io.lumine.mythic.lib.player.particle.ParticleEffectMap;
+import io.lumine.mythic.lib.player.permission.PermissionMap;
 import io.lumine.mythic.lib.player.potion.PermanentPotionEffectMap;
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
 import io.lumine.mythic.lib.player.skill.PassiveSkillMap;
@@ -69,6 +70,7 @@ public class MMOPlayerData {
     private final PermanentPotionEffectMap permEffectMap = new PermanentPotionEffectMap(this);
     private final ParticleEffectMap particleEffectMap = new ParticleEffectMap(this);
     private final PassiveSkillMap passiveSkillMap = new PassiveSkillMap(this);
+    private final PermissionMap permissionMap = new PermissionMap(this);
     private final VariableList variableList = new VariableList(VariableScope.PLAYER);
 
     /**
@@ -201,20 +203,19 @@ public class MMOPlayerData {
         return skillModifierMap;
     }
 
-    /**
-     * @deprecated Not implemented yet
-     */
-    @Deprecated
+    @NotNull
     public PermanentPotionEffectMap getPermanentEffectMap() {
         return permEffectMap;
     }
 
-    /**
-     * @deprecated Not implemented yet
-     */
-    @Deprecated
+    @NotNull
     public ParticleEffectMap getParticleEffectMap() {
         return particleEffectMap;
+    }
+
+    @NotNull
+    public PermissionMap getPermissionMap() {
+        return permissionMap;
     }
 
     /**
@@ -249,6 +250,15 @@ public class MMOPlayerData {
             if (handler.isTriggerable() && skill.getType().equals(triggerMetadata.getTriggerType()))
                 skill.getTriggeredSkill().cast(triggerMetadata);
         }
+    }
+
+    /**
+     * Ticks every second in-game for every online player
+     */
+    public void tickOnline() {
+
+        // Apply permanent potion effects
+        permEffectMap.applyPermanentPotionEffects();
     }
 
     @NotNull
@@ -320,6 +330,7 @@ public class MMOPlayerData {
 
         // When logging off
         else {
+            permissionMap.flushAttachment();
             pluginLoadQueue = null;
             statMap.flushCache();
         }
@@ -475,7 +486,7 @@ public class MMOPlayerData {
      * This method is more performant than the following code:
      * <code>Bukkit.getOnlinePlayers().forEach(player -> MMOPlayerData.get(player)......);</code>
      */
-    public static void forEachOnline(Consumer<MMOPlayerData> action) {
+    public static void forEachOnline(@NotNull Consumer<MMOPlayerData> action) {
         for (MMOPlayerData registered : PLAYER_DATA.values())
             if (registered.isOnline()) action.accept(registered);
     }
@@ -485,11 +496,7 @@ public class MMOPlayerData {
      * checked once an hour to make sure not to cause memory leaks.
      */
     public static void flushOfflinePlayerData() {
-        final Iterator<MMOPlayerData> iterator = PLAYER_DATA.values().iterator();
-        while (iterator.hasNext()) {
-            final MMOPlayerData tempData = iterator.next();
-            if (tempData.isTimedOut()) iterator.remove();
-        }
+        PLAYER_DATA.values().removeIf(MMOPlayerData::isTimedOut);
     }
 
     //region Deprecated API
