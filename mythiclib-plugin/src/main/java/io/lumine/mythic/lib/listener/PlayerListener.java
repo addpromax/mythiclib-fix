@@ -24,12 +24,18 @@ public class PlayerListener implements Listener {
         // Setup player data
         final MMOPlayerData data = MMOPlayerData.setup(event.getPlayer());
 
-        // Flush old modifiers
+        // [BACKWARDS COMPATIBILITY] Flush old modifiers
         UtilityMethods.flushOldModifiers(data.getPlayer());
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerQuitLowest(PlayerQuitEvent event) {
+        final MMOPlayerData playerData = MMOPlayerData.getOrNull(event.getPlayer());
+        if (playerData != null) playerData.getStatMap().bufferUpdates();
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuitMonitor(PlayerQuitEvent event) {
         final MMOPlayerData playerData = MMOPlayerData.getOrNull(event.getPlayer());
         if (playerData != null) playerData.updatePlayer(null);
         else MythicLib.plugin.getLogger().log(Level.SEVERE, "Player data of " +

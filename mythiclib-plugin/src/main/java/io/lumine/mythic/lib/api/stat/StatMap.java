@@ -31,6 +31,7 @@ public class StatMap implements PlayerStatProvider {
      * A player StatMap always starts in buffering mode.
      * On startup, player data is not loaded yet.
      *
+     * @see StatMap#bufferUpdates()
      * @see StatMap#releaseUpdates()
      */
     private boolean bufferUpdates = true;
@@ -85,8 +86,8 @@ public class StatMap implements PlayerStatProvider {
         for (StatHandler handler : MythicLib.plugin.getStats().getHandlers()) {
             final StatInstance ins = handler.forcesUpdates() ? getInstance(handler.getStat()) : stats.get(handler.getStat());
             if (ins != null) {
-                ins.flushCache();
-                ins.update();
+                ins.flushCache(); // Sometimes handlers are cached before mmodatas are loaded
+                ins.update(); // Update all stats, whatever
             }
         }
     }
@@ -99,6 +100,20 @@ public class StatMap implements PlayerStatProvider {
         return bufferUpdates;
     }
 
+    public void bufferUpdates(@NotNull Runnable runnable) {
+        boolean buffered = !bufferUpdates;
+        bufferUpdates();
+        runnable.run();
+        if (buffered) releaseUpdates();
+    }
+
+    /**
+     * Not a safe method. Avoid using this method, and use the one
+     * provided instead, as this method requires the use of {@link #releaseUpdates()}
+     * which can mess with MMO plugin login logic.
+     *
+     * @see #bufferUpdates(Runnable)
+     */
     public void bufferUpdates() {
         bufferUpdates = true;
     }

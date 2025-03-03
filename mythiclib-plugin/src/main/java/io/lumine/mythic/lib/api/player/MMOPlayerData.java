@@ -321,17 +321,16 @@ public class MMOPlayerData {
         this.player = player;
         this.lastLogActivity = System.currentTimeMillis();
 
-        // When logging in
+        // When logging in (called BEFORE all MMO plugins)
         if (player != null) {
             pluginLoadQueue = new ArrayList<>();
             for (MMOPlugin mmoPlugin : MythicLib.plugin.getMMOPlugins())
                 if (mmoPlugin.hasData()) pluginLoadQueue.add(mmoPlugin);
         }
 
-        // When logging off
+        // When logging off (called AFTER all MMO plugins)
         else {
             permissionMap.flushAttachment();
-            pluginLoadQueue = null;
             statMap.flushCache();
         }
     }
