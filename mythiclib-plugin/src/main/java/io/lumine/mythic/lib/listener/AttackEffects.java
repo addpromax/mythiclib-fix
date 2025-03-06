@@ -55,7 +55,7 @@ public class AttackEffects extends Module implements Listener {
             event.getDamage().additiveModifier(stats.getStat(type.getOffenseStat()) / 100, type);
 
         // Apply undead damage
-        if (VersionWrapper.get().isUndead(event.getEntity()))
+        if (UtilityMethods.isUndead(event.getEntity()))
             event.getDamage().additiveModifier(stats.getStat("UNDEAD_DAMAGE") / 100);
 
         // Apply PvP or PvE damage, one of the two anyways.

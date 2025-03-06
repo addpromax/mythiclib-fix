@@ -8,6 +8,7 @@ import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.comp.interaction.InteractionType;
 import io.lumine.mythic.lib.player.PlayerMetadata;
 import io.lumine.mythic.lib.util.DelayFormat;
+import io.lumine.mythic.lib.util.Lazy;
 import io.lumine.mythic.lib.util.Tasks;
 import io.lumine.mythic.lib.util.annotation.BackwardsCompatibility;
 import io.lumine.mythic.lib.util.configobject.ConfigObject;
@@ -19,10 +20,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -105,6 +103,36 @@ public class UtilityMethods {
                                                        @NotNull EventPriority priority,
                                                        @NotNull Consumer<T> executor) {
         registerEvent(eventClass, PRIVATE_LISTENER, priority, executor, MythicLib.plugin, false);
+    }
+
+    private static final Lazy<Set<EntityType>> UNDEAD_ENTITY_TYPES = Lazy.of(() -> {
+        Set<EntityType> set = new HashSet<>();
+        for (String undeadEntityTypeCandidate : Arrays.asList(
+                "ZOMBIFIED_PIGLIN",
+                "SKELETON",
+                "STRAY",
+                "WITHER_SKELETON",
+                "ZOMBIE",
+                "DROWNED",
+                "HUSK",
+                "PIG_ZOMBIE",
+                "ZOMBIE_VILLAGER",
+                "PHANTOM",
+                "WITHER",
+                "SKELETON_HORSE",
+                "ZOMBIE_HORSE"
+        ))
+            try {
+                set.add(EntityType.valueOf(undeadEntityTypeCandidate));
+            } catch (Exception ignored) {
+                // Pass
+                MythicLib.plugin.getLogger().log(Level.INFO, "COuld not find entity type " + undeadEntityTypeCandidate);
+            }
+        return set;
+    });
+
+    public static boolean isUndead(@NotNull Entity entity) {
+        return UNDEAD_ENTITY_TYPES.get().contains(entity.getType());
     }
 
     /**
