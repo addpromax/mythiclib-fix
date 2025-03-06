@@ -21,7 +21,7 @@ public class SimpleItem<T extends GeneratedInventory> extends PhysicalItem<T> {
     public SimpleItem(ConfigurationSection config) {
         super(config);
 
-        script = config.contains("on-click") ? MythicLib.plugin.getSkills().loadScript(config, "on-click") : null;
+        script = config.contains("on-click") ? MythicLib.plugin.getSkills().loadScript(config.get("on-click")) : null;
     }
 
     @Override
@@ -32,8 +32,7 @@ public class SimpleItem<T extends GeneratedInventory> extends PhysicalItem<T> {
     @Override
     public void onClick(@NotNull T inv, @NotNull InventoryClickEvent event) {
         if (script != null) {
-            SkillHandler<?> handler = new MythicLibSkillHandler(script);
-            SimpleSkill skill = new SimpleSkill(handler);
+            SimpleSkill skill = new SimpleSkill(script);
             skill.cast(inv.getMMOPlayerData());
         }
     }

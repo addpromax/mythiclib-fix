@@ -261,6 +261,8 @@ public class SkillManager extends Module {
             throw new IllegalArgumentException("Could not match handler type to config");
         }
 
+        // TODO support lists
+
         throw new IllegalArgumentException("Provide either a string or configuration section instead of " + obj.getClass().getSimpleName());
     }
 
@@ -299,42 +301,37 @@ public class SkillManager extends Module {
     }
 
     @NotNull
-    public Script loadScript(@NotNull ConfigurationSection config, @NotNull String key) {
-        Object obj = config.get(key);
+    public Script loadScript(Object obj) {
+        // Arbitrary default script name
+        return loadScript("UnidentifiedScript", obj);
+    }
 
-        if (obj instanceof String) return getScriptOrThrow(obj.toString());
+    @NotNull
+    public Script loadScript(@NotNull String key, @NotNull Object genericInput) {
+        Validate.notNull(genericInput, "Object cannot be null");
 
-        if (obj instanceof ConfigurationSection) {
-            Script skill = new Script((ConfigurationSection) obj);
+        if (genericInput instanceof String) return getScriptOrThrow(genericInput.toString());
+
+        if (genericInput instanceof ConfigurationSection) {
+            Script skill = new Script((ConfigurationSection) genericInput);
             skill.getPostLoadAction().performAction();
             return skill;
         }
 
         // Adapt a list to a config section
-        if (obj instanceof List) {
-            YamlConfiguration newConfig = new YamlConfiguration();
-            newConfig.set(key + ".mechanics", obj);
-            Script skill = new Script(Objects.requireNonNull(newConfig.getConfigurationSection(key)));
+        if (genericInput instanceof List) {
+            Validate.notNull(key, "Key cannot be null");
+            Script skill = new Script(key, (List<String>) genericInput);
             skill.getPostLoadAction().performAction();
             return skill;
         }
 
-        throw new IllegalArgumentException("Provide either a string, list or config section");
+        throw new IllegalArgumentException("Expected a string, config section or list");
     }
 
-    @NotNull
     @Deprecated
-    public Script loadScript(Object obj) {
-
-        if (obj instanceof String) return getScriptOrThrow(obj.toString());
-
-        if (obj instanceof ConfigurationSection) {
-            Script skill = new Script((ConfigurationSection) obj);
-            skill.getPostLoadAction().performAction();
-            return skill;
-        }
-
-        throw new IllegalArgumentException("Provide either a string or config section");
+    public Script loadScript(@NotNull ConfigurationSection config, @NotNull String key) {
+        return loadScript(key, config.get(key));
     }
 
     @NotNull
@@ -436,7 +433,7 @@ public class SkillManager extends Module {
             reload();
         } else try {
             enable();
-        } catch(Exception exception) {
+        } catch (Exception exception) {
             reload();
         }
     }

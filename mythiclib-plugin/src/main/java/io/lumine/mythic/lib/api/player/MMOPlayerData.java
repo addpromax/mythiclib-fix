@@ -247,7 +247,7 @@ public class MMOPlayerData {
 
         for (PassiveSkill skill : skills) {
             final SkillHandler<?> handler = skill.getTriggeredSkill().getHandler();
-            if (handler.isTriggerable() && skill.getType().equals(triggerMetadata.getTriggerType()))
+            if (handler.isTriggerable() && skill.getTrigger().equals(triggerMetadata.getTriggerType()))
                 skill.getTriggeredSkill().cast(triggerMetadata);
         }
     }

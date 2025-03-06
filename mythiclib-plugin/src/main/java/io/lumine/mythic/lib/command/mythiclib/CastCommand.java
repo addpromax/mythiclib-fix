@@ -37,7 +37,7 @@ public class CastCommand extends CommandTreeNode {
             return CommandResult.FAILURE;
         }
 
-        new SimpleSkill(TriggerType.CAST, handler).cast(MMOPlayerData.get((Player) sender));
+        new SimpleSkill(handler).cast(MMOPlayerData.get((Player) sender), TriggerType.COMMAND);
 
         return CommandResult.SUCCESS;
     }

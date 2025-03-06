@@ -64,7 +64,7 @@ public class ConfigSectionObject implements ConfigObject {
 
     @NotNull
     public Script getScript(String key) {
-        return MythicLib.plugin.getSkills().loadScript(config, key);
+        return MythicLib.plugin.getSkills().loadScript(key, config.get(key));
     }
 
     @NotNull

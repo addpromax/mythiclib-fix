@@ -335,7 +335,7 @@ public class UtilityMethods {
         if (defaultValue != null) return Objects.requireNonNull(defaultValue.get(), "Null supplied default value");
 
         // Error otherwise
-        throw new RuntimeException("Could not find enum field given candidates " + Arrays.asList(candidates));
+        throw new IllegalArgumentException("Could not find enum field given candidates " + Arrays.asList(candidates));
     }
 
     public static double getPlayerDefaultBaseValue(@NotNull Attribute attribute, @Nullable AttributeInstance instance) {

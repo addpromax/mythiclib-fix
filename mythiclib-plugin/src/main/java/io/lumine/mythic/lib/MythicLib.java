@@ -12,6 +12,7 @@ import io.lumine.mythic.lib.command.HealthScaleCommand;
 import io.lumine.mythic.lib.command.MMOTempStatCommand;
 import io.lumine.mythic.lib.comp.FabledModule;
 import io.lumine.mythic.lib.comp.McMMOModule;
+import io.lumine.mythic.lib.comp.actionbar.ActionBarProvider;
 import io.lumine.mythic.lib.comp.adventure.AdventureParser;
 import io.lumine.mythic.lib.comp.anticheat.AntiCheatSupport;
 import io.lumine.mythic.lib.comp.anticheat.SpartanPlugin;
@@ -88,6 +89,7 @@ public class MythicLib extends MMOPluginImpl {
     private AdventureParser adventureParser;
     private PlaceholderParser placeholderParser;
     private GlowModule glowModule;
+    private ActionBarProvider actionBarProvider;
     private @Nullable ProfileMode profileMode;
 
     @Override
@@ -463,5 +465,9 @@ public class MythicLib extends MMOPluginImpl {
     @NotNull
     public HologramFactory getHologramFactory() {
         return hologramFactory;
+    }
+
+    public ActionBarProvider getActionBarProvider() {
+        return actionBarProvider;
     }
 }

@@ -123,7 +123,7 @@ public abstract class PlayerModifier {
         registerPlayerModifierType("particle_effect", ParticleEffect::fromConfig, "particle", "particles");
         registerPlayerModifierType("potion_effect", PermanentPotionEffect::fromConfig, "potion", "potioneffect", "pot");
         registerPlayerModifierType("stat", StatModifier::new, "stats", "mmostat");
-        registerPlayerModifierType("skill", PassiveSkill::from, "ability", "passive_skill", "passive");
+        registerPlayerModifierType("skill", PassiveSkill::fromConfig, "ability", "passive_skill", "passive");
         registerPlayerModifierType("skill_modifier", SkillModifier::fromConfig, "skill_mod", "skillmod", "skillmodifier");
         registerPlayerModifierType("permission", PermissionModifier::fromConfig, "perm", "perm_node", "permnode");
     }
