@@ -56,6 +56,13 @@ public class MMOPlayerData {
     private long lastLogActivity;
 
     /**
+     * This fixes a very specific issue with recent versions of Spigot (1.19+).
+     * Bukkit interact events are called when a player drops an item. In specific
+     * scenarios, dropping an item triggers left-click abilities, which sucks.
+     */
+    public long lastDrop;
+
+    /**
      * When logging in, MythicLib waits for all MMO plugins
      * to fill in the empty player's StatMap before performing
      * stat updates.
