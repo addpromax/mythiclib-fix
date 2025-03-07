@@ -34,8 +34,6 @@ import io.lumine.mythic.lib.glow.provided.MythicGlowModule;
 import io.lumine.mythic.lib.gui.PluginInventory;
 import io.lumine.mythic.lib.hologram.HologramFactory;
 import io.lumine.mythic.lib.hologram.HologramFactoryList;
-import io.lumine.mythic.lib.hologram.factory.BukkitHologramFactory;
-import io.lumine.mythic.lib.hologram.factory.LegacyBukkitHologramFactory;
 import io.lumine.mythic.lib.listener.*;
 import io.lumine.mythic.lib.listener.event.AttackEventListener;
 import io.lumine.mythic.lib.listener.option.FixAttributeModifiers;
@@ -131,11 +129,6 @@ public class MythicLib extends MMOPluginImpl {
 
         // Fixes left clicks
         new MythicPacketSniffer(this, version);
-
-        // Hologram provider TODO remove
-        Bukkit.getServicesManager().register(HologramFactory.class, new LegacyBukkitHologramFactory(), this, ServicePriority.Lowest);
-        if (version.isAbove(1, 19, 4))
-            Bukkit.getServicesManager().register(HologramFactory.class, new BukkitHologramFactory(), this, ServicePriority.Low);
 
         // Detect MMO plugins
         for (Plugin plugin : Bukkit.getPluginManager().getPlugins())

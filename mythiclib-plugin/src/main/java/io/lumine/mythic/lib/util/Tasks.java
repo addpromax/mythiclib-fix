@@ -3,7 +3,6 @@ package io.lumine.mythic.lib.util;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scheduler.BukkitWorker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -59,22 +58,12 @@ public class Tasks {
      * @param plugin Plugin owner
      */
     public static void waitSafe(@NotNull Plugin plugin) {
-        while (true) {
-
-            // Check active workers
-            for (BukkitWorker worker : Bukkit.getScheduler().getActiveWorkers())
-                if (worker.getOwner().equals(plugin)) {
-                    try {
-                        Thread.sleep(ASYNC_TIME_OUT);
-                    } catch (InterruptedException exception) {
-                        // Do nothing
-                    } finally {
-                        continue;
-                    }
-                }
-
-            // No worker, exit loop
-            break;
+        while (Bukkit.getScheduler().getActiveWorkers().stream().anyMatch(worker -> worker.getOwner().equals(plugin))) {
+            try {
+                Thread.sleep(ASYNC_TIME_OUT);
+            } catch (InterruptedException exception) {
+                // Ignore
+            }
         }
     }
 
