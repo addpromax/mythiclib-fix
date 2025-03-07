@@ -2,6 +2,7 @@ package io.lumine.mythic.lib.api.stat.api;
 
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.player.modifier.ModifierType;
+import io.lumine.mythic.lib.player.modifier.PlayerModifier;
 import io.lumine.mythic.lib.util.Closeable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @see {@link InstanceModifier}
+ * @see InstanceModifier
  */
 public abstract class ModifiedInstance<T extends InstanceModifier> {
     protected final Map<UUID, T> modifiers = new ConcurrentHashMap<>();
@@ -165,7 +166,7 @@ public abstract class ModifiedInstance<T extends InstanceModifier> {
     @Deprecated
     @NotNull
     public Set<String> getKeys() {
-        return modifiers.values().stream().map(mod -> mod.getKey()).collect(Collectors.toSet());
+        return modifiers.values().stream().map(PlayerModifier::getKey).collect(Collectors.toSet());
     }
 
     /**

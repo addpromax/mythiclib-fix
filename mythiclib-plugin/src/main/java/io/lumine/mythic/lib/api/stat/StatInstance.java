@@ -126,7 +126,7 @@ public class StatInstance extends ModifiedInstance<StatModifier> {
      */
     @Override
     public void registerModifier(@NotNull StatModifier modifier) {
-        final StatModifier current = modifiers.put(modifier.getUniqueId(), modifier);
+        final @Nullable StatModifier current = modifiers.put(modifier.getUniqueId(), modifier);
         if (modifier.equals(current)) return; // Safeguard, that should never happen tho
 
         if (current instanceof Closeable) ((Closeable) current).close();
@@ -195,8 +195,10 @@ public class StatInstance extends ModifiedInstance<StatModifier> {
 
     public void releaseUpdates() {
         Validate.isTrue(!map.isBufferingUpdates(), "StatMap is still in buffer mode");
-        if (updateRequired) handler.get().ifPresent(handler -> handler.runUpdate(this));
-        updateRequired = false;
+        if (updateRequired) {
+            handler.get().ifPresent(handler -> handler.runUpdate(this));
+            updateRequired = false;
+        }
     }
 
     //endregion
@@ -210,7 +212,11 @@ public class StatInstance extends ModifiedInstance<StatModifier> {
 
     @Deprecated
     public class ModifierPacket {
+        private final boolean previousBuffer;
+
+        @Deprecated
         public ModifierPacket() {
+            previousBuffer = map.isBufferingUpdates();
             map.bufferUpdates();
         }
 
@@ -226,17 +232,17 @@ public class StatInstance extends ModifiedInstance<StatModifier> {
 
         @Deprecated
         public void remove(@NotNull String key) {
-            removeIf(str -> str.equals(key));
+            StatInstance.this.removeIf(str -> str.equals(key));
         }
 
         @Deprecated
         public void removeIf(@NotNull Predicate<String> condition) {
-
+            StatInstance.this.removeIf(condition);
         }
 
         @Deprecated
         public void update() {
-            if (updateRequired) StatInstance.this.update();
+            if (!previousBuffer) StatInstance.this.releaseUpdates();
         }
 
         @Deprecated

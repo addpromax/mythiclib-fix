@@ -7,6 +7,7 @@ import io.lumine.mythic.lib.api.stat.handler.StatHandler;
 import io.lumine.mythic.lib.api.stat.provider.PlayerStatProvider;
 import io.lumine.mythic.lib.player.PlayerMetadata;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -82,14 +83,18 @@ public class StatMap implements PlayerStatProvider {
     }
 
     public void updateAll() {
-        bufferUpdates = false;
+
+        // Update caches and force updates
         for (StatHandler handler : MythicLib.plugin.getStats().getHandlers()) {
-            final StatInstance ins = handler.forcesUpdates() ? getInstance(handler.getStat()) : stats.get(handler.getStat());
-            if (ins != null) {
-                ins.flushCache(); // Sometimes handlers are cached before mmodatas are loaded
-                ins.update(); // Update all stats, whatever
-            }
+            final @Nullable StatInstance ins = handler.forcesUpdates() ? getInstance(handler.getStat()) : stats.get(handler.getStat());
+            if (ins == null) continue;
+
+            ins.flushCache(); // Sometimes handlers are cached before mmodatas are loaded
+            ins.update(); // Update all stats, whatever
         }
+
+        // Release updates
+        releaseUpdates();
     }
 
     public void flushCache() {
