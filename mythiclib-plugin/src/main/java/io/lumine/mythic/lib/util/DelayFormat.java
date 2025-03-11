@@ -20,18 +20,17 @@ public class DelayFormat {
             1000 * 60 * 60 * 24,
             (long) (1000 * 60 * 60 * 24 * 30.436875),
             (long) (1000 * 60 * 60 * 24 * 365.2491)};
+    private final static int N = DELAY_AMOUNTS.length;
 
-    private final boolean[] charactersUsed;
+    private final int[] chars;
     private final String[] translation;
-
     @Nullable
     private final String threshold, each;
     private final int smallestUnit;
 
     public DelayFormat() {
-        charactersUsed = new boolean[DELAY_CHARACTERS.length];
-        for (int i = 0; i < DELAY_CHARACTERS.length; i++)
-            charactersUsed[i] = true;
+        chars = new int[N];
+        for (int i = 0; i < N; i++) chars[i] = i;
         translation = null;
         threshold = null;
         each = null;
@@ -45,18 +44,19 @@ public class DelayFormat {
             translation = null;
             threshold = null;
             each = null;
-            charactersUsed = new boolean[DELAY_CHARACTERS.length];
+            chars = new int[object.toString().length()];
             smallestUnit = determineCharactersUsed(object.toString(), null);
         }
 
         // Anything is possible
         else if (object instanceof ConfigurationSection) {
             ConfigurationSection config = (ConfigurationSection) object;
-            charactersUsed = new boolean[DELAY_CHARACTERS.length];
-            translation = new String[DELAY_CHARACTERS.length];
+            String format = Objects.requireNonNull(config.getString("format"), "Could not find format");
+            chars = new int[format.length()];
+            translation = new String[N];
             threshold = config.getString("threshold");
             each = config.getString("each");
-            smallestUnit = determineCharactersUsed(Objects.requireNonNull(config.getString("format"), "Could not find format"), config.getString("translate"));
+            smallestUnit = determineCharactersUsed(format, config.getString("translate"));
         }
 
         // Error
@@ -79,23 +79,27 @@ public class DelayFormat {
         Validate.isTrue(!chars.isEmpty(), "Format cannot be empty");
         String[] translations = loadTranslation(translation);
         char[] tokens = chars.toCharArray();
-        if (translations != null)
-            Validate.isTrue(tokens.length == translations.length, "Format and translation don't have the same size");
+        Validate.isTrue(translations == null || tokens.length == translations.length, "Format and translation don't have the same size");
 
-        int smallest = DELAY_CHARACTERS.length - 1;
-        int ref = 0;
-        for (char token : tokens) {
-            while (ref < DELAY_CHARACTERS.length && token != DELAY_CHARACTERS[ref]) ref++;
-            if (ref >= DELAY_CHARACTERS.length)
-                throw new IllegalArgumentException(String.format("Unknown token %s", token));
-            charactersUsed[ref] = true;
-            if (smallest > ref) smallest = ref; // Save lowest index
+        int smallest = N;
+        for (int j = 0; j < chars.length(); j++) {
+            char token = tokens[j];
+            int index = indexOf(token);
+            this.chars[j] = index;
+
+            smallest = Math.min(smallest, index); // Find smallest unit
 
             // Save token translation
-            if (translations != null) this.translation[ref] = translations[ref];
+            if (translations != null) this.translation[j] = translations[j];
         }
 
         return smallest;
+    }
+
+    private int indexOf(char token) {
+        for (int i = 0; i < N; i++)
+            if (DelayFormat.DELAY_CHARACTERS[i] == token) return i;
+        throw new IllegalArgumentException(String.format("Unknown token %s", token));
     }
 
     private String each(String stringToken, long value) {
@@ -112,19 +116,23 @@ public class DelayFormat {
         // Offset to improve dynamic delay formatting
         millis += DELAY_AMOUNTS[smallestUnit] - 1;
 
-        StringBuilder builder = new StringBuilder();
-        for (int j = DELAY_CHARACTERS.length - 1; j >= 0; j--) {
-            if (!charactersUsed[j]) continue; // Skip unused characters
-
+        // Compute quotients
+        long[] quotients = new long[N];
+        for (int j = N - 1; j >= 0; j--) {
             long divisor = DELAY_AMOUNTS[j];
-            if (millis < divisor) continue;
-
-            long quotient = millis / divisor;
-            String stringToken = translation != null ? translation[j] : String.valueOf(DELAY_CHARACTERS[j]);
-            builder.append(new StringBuilder(each(stringToken, quotient)).reverse());
+            quotients[j] = millis / divisor;
             millis = millis % divisor;
         }
 
-        return builder.reverse().toString();
+        // Format
+        StringBuilder builder = new StringBuilder();
+        for (int index : chars) {
+            long quotient = quotients[index];
+            if (quotient == 0) continue; // Do not display 0's
+            String stringToken = translation != null ? translation[index] : String.valueOf(DELAY_CHARACTERS[index]);
+            builder.append(each(stringToken, quotient));
+        }
+
+        return builder.toString();
     }
 }
