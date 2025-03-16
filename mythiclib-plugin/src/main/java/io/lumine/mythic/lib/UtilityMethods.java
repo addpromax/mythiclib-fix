@@ -675,34 +675,24 @@ public class UtilityMethods {
             plugin.getLogger().log(Level.INFO, colorPrefix + "[Debug" + (prefix == null ? "" : ": " + prefix) + "] " + message);
     }
 
-    private static final int[] NEGATIVE_SPACE_AMOUNTS = {1, 2, 3, 4, 5, 6, 7, 8, 16, 32, 64, 128, 256, 512, 1024};
+    @Deprecated
+    public static String getFontSpace(int size) {
+        return getSpaceFont(size);
+    }
+
+    private static final int NEGATIVE_SPACE_BASE_CHAR = 0xD0000;
 
     /**
-     * Uses character convention from https://www.spigotmc.org/threads/negative-space-font-resource-pack.440952/
-     * Differs from the one given by https://github.com/AmberWat/NegativeSpaceFont
+     * Uses character convention from <a href="https://github.com/AmberWat/NegativeSpaceFont">this Github</a>
      *
-     * @param size Target size in pixels of negative space
+     * @param width Target width in pixels of positive/negative space
      * @return String containing negative font with given size
      */
     @NotNull
-    public static String getFontSpace(int size) {
-        Validate.isTrue(size < 2048 && size > -2048, "Size must be between -2050 and 2050");
-        if (size == 0) return "";
-
-        // Determine base char
-        final int BASE_CHAR = size < 0 ? 0xf801 : 0xf821;
-        if (size < 0) size = -size;
-
-        final StringBuilder built = new StringBuilder();
-        for (int i = 0; i < NEGATIVE_SPACE_AMOUNTS.length; i++) {
-            final int index = NEGATIVE_SPACE_AMOUNTS.length - 1 - i;
-            final int providedSize = NEGATIVE_SPACE_AMOUNTS[index];
-            if (size >= providedSize) {
-                size -= providedSize;
-                built.append((char) (BASE_CHAR + index));
-            }
-        }
-
-        return built.toString();
+    public static String getSpaceFont(int width) {
+        Validate.isTrue(width >= -8192 && width <= 8192, "Size must be between -8192 and 8192");
+        if (width == 0) return ""; // Easyyy
+        final int codePoint = NEGATIVE_SPACE_BASE_CHAR + width;
+        return new String(Character.toChars(codePoint));
     }
 }
