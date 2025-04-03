@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class StatModCommand extends CommandTreeNode {
     }
 
     @Override
-    public CommandResult execute(CommandSender sender, String[] args) {
+    public @NotNull CommandResult execute(CommandSender sender, String[] args) {
         sender.sendMessage("/ml statmod is deprecated. Use instead /ml tempstat ...");
         if (args.length < 4)
             return CommandResult.THROW_USAGE;

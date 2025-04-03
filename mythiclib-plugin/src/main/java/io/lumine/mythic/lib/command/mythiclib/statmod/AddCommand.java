@@ -37,7 +37,7 @@ public class AddCommand extends CommandTreeNode {
     });
 
     @Override
-    public CommandResult execute(CommandSender sender, String[] args) {
+    public @NotNull CommandResult execute(CommandSender sender, String[] args) {
         if (args.length < 5) return CommandResult.THROW_USAGE;
 
         final @Nullable Player target = Bukkit.getPlayer(args[2]);

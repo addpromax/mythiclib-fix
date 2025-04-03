@@ -9,6 +9,7 @@ import io.lumine.mythic.lib.skill.trigger.TriggerType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class CastCommand extends CommandTreeNode {
     public CastCommand(CommandTreeNode parent) {
@@ -16,7 +17,7 @@ public class CastCommand extends CommandTreeNode {
     }
 
     @Override
-    public CommandResult execute(CommandSender sender, String[] args) {
+    public @NotNull CommandResult execute(CommandSender sender, String[] args) {
 
         if (!(sender instanceof Player)) {
             sender.sendMessage("> This command is only for players");
