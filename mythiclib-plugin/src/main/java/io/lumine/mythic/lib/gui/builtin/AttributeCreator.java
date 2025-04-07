@@ -184,9 +184,4 @@ public class AttributeCreator extends PluginInventory {
             }
         }, this::open);
     }
-
-    @Override
-    public void onClose(InventoryCloseEvent event) {
-
-    }
 }

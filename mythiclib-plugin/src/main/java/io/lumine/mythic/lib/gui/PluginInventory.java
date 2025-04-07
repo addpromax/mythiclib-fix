@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
@@ -109,13 +110,17 @@ public abstract class PluginInventory implements InventoryHolder {
      */
     public abstract void onClick(InventoryClickEvent event);
 
-    /**
-     * Called when the inventory is closed
-     *
-     * @param event Close event
-     */
-    public void onClose(InventoryCloseEvent event) {
+    public void onDrag(InventoryDragEvent event) {
+        // Default implementation does nothing
+    }
 
+    /**
+     * Called when the inventory is closed. No instance of event
+     * is provided, because it can either be triggered by the player
+     * closing the UI, or the player leaving the server
+     */
+    public void onClose() {
+        // Default implementation does nothing
     }
 
     private static MMOPlayerData retrievePlayerData(Player player) {

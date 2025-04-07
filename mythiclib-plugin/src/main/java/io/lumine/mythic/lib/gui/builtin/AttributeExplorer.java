@@ -2,11 +2,11 @@ package io.lumine.mythic.lib.gui.builtin;
 
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.UtilityMethods;
-import io.lumine.mythic.lib.util.ChatInput;
-import io.lumine.mythic.lib.util.ItemBuilder;
 import io.lumine.mythic.lib.api.stat.handler.AttributeStatHandler;
 import io.lumine.mythic.lib.api.util.AltChar;
 import io.lumine.mythic.lib.gui.PluginInventory;
+import io.lumine.mythic.lib.util.ChatInput;
+import io.lumine.mythic.lib.util.ItemBuilder;
 import io.lumine.mythic.lib.util.ReflectionUtils;
 import io.lumine.mythic.lib.util.annotation.BackwardsCompatibility;
 import io.lumine.mythic.lib.util.lang3.Validate;
@@ -22,7 +22,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -302,11 +301,6 @@ public class AttributeExplorer extends PluginInventory {
                 });
             }
         }
-    }
-
-    @Override
-    public void onClose(InventoryCloseEvent event) {
-
     }
 
     /**

@@ -135,12 +135,12 @@ public class SkillManager extends Module {
         registerMechanic("lightning", config -> new LightningStrikeMechanic(config));
         registerMechanic("script", config -> new ScriptMechanic(config), "skill", "cast");
 
-        registerMechanic("teleport", config -> new TeleportMechanic(config));
-        registerMechanic("set_velocity", config -> new VelocityMechanic(config));
+        registerMechanic("teleport", TeleportMechanic::new, "tp", "set_position", "set_pos", "setpos", "setposition", "set_location", "setlocation", "set_loc", "setloc", "move", "moveto", "move_to");
+        registerMechanic("set_velocity", VelocityMechanic::new, "setvel", "set_vel", "setvelocity");
 
-        registerMechanic("additive_damage_buff", config -> new AdditiveDamageBuffMechanic(config));
-        registerMechanic("damage", config -> new DamageMechanic(config));
-        registerMechanic("multiply_damage", config -> new MultiplyDamageMechanic(config));
+        registerMechanic("additive_damage_buff", AdditiveDamageBuffMechanic::new);
+        registerMechanic("damage", DamageMechanic::new, "deal_damage", "dmg", "deal_dmg", "dealdamage", "dealdmg", "attack", "atk");
+        registerMechanic("multiply_damage", MultiplyDamageMechanic::new);
         registerMechanic("potion", config -> new PotionMechanic(config));
         registerMechanic("remove_potion", config -> new RemovePotionMechanic(config));
         registerMechanic("set_on_fire", config -> new SetOnFireMechanic(config));

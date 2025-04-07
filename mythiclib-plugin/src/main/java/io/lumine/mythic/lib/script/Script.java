@@ -55,7 +55,7 @@ public class Script implements PreloadedObject {
         YamlConfiguration newConfig = new YamlConfiguration();
         newConfig.set(key + ".mechanics", mechanics);
 
-        postLoadAction.cacheConfig(newConfig);
+        postLoadAction.cacheConfig(newConfig.getConfigurationSection(key));
 
         this.id = key;
         this.publik = false;

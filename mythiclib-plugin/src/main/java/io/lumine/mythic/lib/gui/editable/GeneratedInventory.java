@@ -7,7 +7,6 @@ import io.lumine.mythic.lib.gui.editable.item.InventoryItem;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -114,10 +113,6 @@ public abstract class GeneratedInventory extends PluginInventory {
         }
     }
 
-    public void open() {
-        Validate.isTrue(this == getNavigator().openLast(), "Opened an inventory that is not the last");
-    }
-
     /**
      * @see io.lumine.mythic.lib.gui.editable.item.builtin.NextPageItem
      */
@@ -160,10 +155,5 @@ public abstract class GeneratedInventory extends PluginInventory {
     @NotNull
     public String applyNamePlaceholders(String str) {
         return str;
-    }
-
-    @Override
-    public void onClose(InventoryCloseEvent event) {
-        // Nothing by default
     }
 }

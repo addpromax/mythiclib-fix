@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
@@ -170,8 +171,7 @@ public class Navigator implements Listener {
 
         haltBackgroundTask();
 
-        // On hold?
-        if (onHold) return;
+        if (onHold) return; // On hold?
 
         // Cannot close
         if (!canClose) {
@@ -188,11 +188,17 @@ public class Navigator implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (!event.getWhoClicked().equals(player)) return;
-
-        // On hold?
-        if (onHold) return;
+        if (onHold) return; // On hold?
 
         openedInventories.peek().onClick(event);
+    }
+
+    @EventHandler
+    public void onDrag(InventoryDragEvent event) {
+        if (!event.getWhoClicked().equals(player)) return;
+        if (onHold) return; // On hold?
+
+        openedInventories.peek().onDrag(event);
     }
 
     @EventHandler
@@ -206,8 +212,11 @@ public class Navigator implements Listener {
         Validate.isTrue(!closed, "Already closed");
         closed = true;
 
+        openedInventories.peek().onClose();
+
         InventoryCloseEvent.getHandlerList().unregister(this);
         InventoryClickEvent.getHandlerList().unregister(this);
+        InventoryDragEvent.getHandlerList().unregister(this);
         PlayerQuitEvent.getHandlerList().unregister(this);
     }
 }
