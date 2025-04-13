@@ -19,6 +19,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.command.CommandMap;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
@@ -55,6 +56,15 @@ public class UtilityMethods {
 
     public static Location readLocation(@NotNull ConfigObject config) {
         return new Location(Bukkit.getWorld(config.getString("world")), config.getDouble("x"), config.getDouble("y"), config.getDouble("z"), (float) config.getDouble("yaw"), (float) config.getDouble("pitch"));
+    }
+
+    /**
+     * Paper does not have this option. This allows some
+     * plugins to be built against Spigot and not Paper
+     */
+    @NotNull
+    public static CommandMap getCommandMap() {
+        return Bukkit.getCommandMap();
     }
 
     public static Vector safeNormalize(@NotNull Vector vec) {
