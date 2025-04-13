@@ -5,15 +5,18 @@ import io.lumine.mythic.lib.gui.editable.GeneratedInventory;
 import io.lumine.mythic.lib.gui.editable.placeholder.Placeholders;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class PhysicalItem<T extends GeneratedInventory> extends InventoryItem<T> {
@@ -22,6 +25,8 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
     private final String name;
     private final List<String> lore;
     private final int modelData;
+    private final String customModelDataComponent;
+    private final NamespacedKey itemModel;
     private final boolean hideFlags;
 
     public PhysicalItem(@NotNull ConfigurationSection config) {
@@ -37,6 +42,8 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
         this.lore = config.getStringList("lore");
         this.hideFlags = config.getBoolean("hide-flags");
         this.modelData = config.getInt("custom-model-data");
+        this.customModelDataComponent = config.contains("custom-model-data-string") ? config.getString("custom-model-data-string") : null;
+        this.itemModel = config.contains("item-model") ? NamespacedKey.fromString(config.getString("item-model")) : null;
         this.texture = config.getString("texture");
     }
 
@@ -105,7 +112,13 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
                 meta.setLore(lore);
             }
 
-            meta.setCustomModelData(getModelData());
+            if (modelData != 0) meta.setCustomModelData(getModelData());
+            if (customModelDataComponent != null) {
+                CustomModelDataComponent comp = meta.getCustomModelDataComponent();
+                comp.setStrings(Collections.singletonList(customModelDataComponent));
+                meta.setCustomModelDataComponent(comp);
+            }
+            if (itemModel != null) meta.setItemModel(itemModel);
             if (texture != null && meta instanceof SkullMeta) UtilityMethods.setTextureValue((SkullMeta) meta, texture);
 
             item.setItemMeta(meta);
