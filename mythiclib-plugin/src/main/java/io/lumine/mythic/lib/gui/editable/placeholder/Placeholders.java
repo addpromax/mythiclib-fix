@@ -2,7 +2,7 @@ package io.lumine.mythic.lib.gui.editable.placeholder;
 
 
 import io.lumine.mythic.lib.MythicLib;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class Placeholders {
      * @return String with parsed placeholders only for internal placeholders
      */
     @NotNull
-    public String apply(@NotNull Player player, @NotNull String str) {
+    public String apply(@NotNull OfflinePlayer player, @NotNull String str) {
 
         str = MythicLib.plugin.getPlaceholderParser().parse(player, str);
 

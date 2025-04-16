@@ -14,12 +14,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class GeneratedInventory extends PluginInventory {
     private final EditableInventory editable;
     protected final String guiName;
 
     private final List<InventoryItem<?>> loaded = new ArrayList<>();
+
+    // TODO set to null when closing
+    protected Inventory lastOpened;
 
     public GeneratedInventory(Navigator navigator, EditableInventory editable) {
         super(navigator);
@@ -75,8 +81,9 @@ public abstract class GeneratedInventory extends PluginInventory {
         loaded.add(0, item);
     }
 
+    @NotNull
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         /*
          * Very important, in order employer prevent ghost items, the loaded items map
          * must be cleared when the inventory is updated or open at least twice.
@@ -155,5 +162,19 @@ public abstract class GeneratedInventory extends PluginInventory {
     @NotNull
     public String applyNamePlaceholders(String str) {
         return str;
+    }
+
+    public void asyncUpdate(InventoryItem<?> item, int n, ItemStack placed, Consumer<ItemStack> update) {
+        Bukkit.getScheduler().runTaskAsynchronously(MythicLib.plugin, () -> {
+            update.accept(placed);
+            lastOpened.setItem(item.getSlots().get(n), placed);
+        });
+    }
+
+    public <T> void asyncUpdate(CompletableFuture<T> future, InventoryItem<?> item, int n, ItemStack placed, BiConsumer<T, ItemStack> update) {
+        future.thenAccept(t -> {
+            update.accept(t, placed);
+            lastOpened.setItem(item.getSlots().get(n), placed);
+        });
     }
 }
