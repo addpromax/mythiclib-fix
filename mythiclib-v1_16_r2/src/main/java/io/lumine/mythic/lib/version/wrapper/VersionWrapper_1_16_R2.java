@@ -24,8 +24,6 @@ import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -296,6 +294,30 @@ public class VersionWrapper_1_16_R2 implements VersionWrapper {
         }
 
         @Override
+        public NBTItem setDouble(String path, double value) {
+            compound.setDouble(path, value);
+            return this;
+        }
+
+        @Override
+        public NBTItem setBoolean(String path, boolean value) {
+            compound.setBoolean(path, value);
+            return this;
+        }
+
+        @Override
+        public NBTItem setInteger(String path, int value) {
+            compound.setInt(path, value);
+            return this;
+        }
+
+        @Override
+        public NBTItem setString(String path, String value) {
+            compound.setString(path, value);
+            return this;
+        }
+
+        @Override
         public NBTItem removeTag(String... paths) {
             for (String path : paths)
                 compound.remove(path);
@@ -456,14 +478,6 @@ public class VersionWrapper_1_16_R2 implements VersionWrapper {
             return ageable.getAge() == ageable.getMaximumAge();
         }
         return false;
-    }
-
-    @Override
-    public boolean isUndead(Entity entity) {
-        EntityType type = entity.getType();
-        return type == EntityType.SKELETON || type == EntityType.STRAY || type == EntityType.WITHER_SKELETON || type == EntityType.ZOMBIE
-                || type == EntityType.DROWNED || type == EntityType.HUSK || type.name().equals("PIG_ZOMBIE") || type == EntityType.ZOMBIE_VILLAGER
-                || type == EntityType.PHANTOM || type == EntityType.WITHER || type == EntityType.SKELETON_HORSE || type == EntityType.ZOMBIE_HORSE;
     }
 
     @Override

@@ -1,18 +1,24 @@
 package io.lumine.mythic.lib.module;
 
 import io.lumine.mythic.lib.util.annotation.NotUsed;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
+/**
+ * @see io.lumine.mythic.lib.util.MMOPlugin
+ */
 @NotUsed
 public class MMOPluginImpl extends JavaPlugin {
     private final List<Module> modules = new ArrayList<>();
 
     public MMOPluginImpl() {
-        MMOPluginRegistry.getInstance().registerPlugin(this);
+        ModuleRegistry.getInstance().registerPlugin(this);
     }
 
     /**
@@ -50,4 +56,12 @@ public class MMOPluginImpl extends JavaPlugin {
 
         this.managers.add(manager);
     }*/
+
+    public void debug(String message) {
+        String msg = String.format("[DEBUG] %s", message);
+        getLogger().log(Level.INFO, msg);
+
+        for (Player online : Bukkit.getOnlinePlayers())
+            online.sendMessage(msg);
+    }
 }

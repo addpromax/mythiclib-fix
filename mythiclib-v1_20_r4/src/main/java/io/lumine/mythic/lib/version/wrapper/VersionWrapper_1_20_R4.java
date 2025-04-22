@@ -43,8 +43,6 @@ import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockType;
 import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -310,6 +308,29 @@ public class VersionWrapper_1_20_R4 implements VersionWrapper {
         }
 
         @Override
+        public NBTItem setDouble(String path, double value) {
+            return null;
+        }
+
+        @Override
+        public NBTItem setBoolean(String path, boolean value) {
+            compound.putBoolean(path, value);
+            return this;
+        }
+
+        @Override
+        public NBTItem setInteger(String path, int value) {
+            compound.putInt(path, value);
+            return this;
+        }
+
+        @Override
+        public NBTItem setString(String path, String value) {
+            compound.putString(path, value);
+            return this;
+        }
+
+        @Override
         public void setCanMine(Collection<Material> blocks) {
             net.minecraft.world.level.block.Block[] arr = blocks.stream().map(CraftBlockType::bukkitToMinecraft).toArray(net.minecraft.world.level.block.Block[]::new);
             List<BlockPredicate> list = new ArrayList<>();
@@ -456,12 +477,6 @@ public class VersionWrapper_1_20_R4 implements VersionWrapper {
             return ageable.getAge() == ageable.getMaximumAge();
         }
         return false;
-    }
-
-    @Override
-    public boolean isUndead(Entity entity) {
-        EntityType type = entity.getType();
-        return type == EntityType.SKELETON || type == EntityType.STRAY || type == EntityType.WITHER_SKELETON || type == EntityType.ZOMBIE || type == EntityType.DROWNED || type == EntityType.HUSK || type.name().equals("PIG_ZOMBIE") || type == EntityType.ZOMBIE_VILLAGER || type == EntityType.PHANTOM || type == EntityType.WITHER || type == EntityType.SKELETON_HORSE || type == EntityType.ZOMBIE_HORSE;
     }
 
     @Override
