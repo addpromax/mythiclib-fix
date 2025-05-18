@@ -51,58 +51,34 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
         this.itemModel = config.contains("item-model") ? NamespacedKey.fromString(config.getString("item-model")) : null;
         this.texture = config.getString("texture");
     }
-/*
-    @Deprecated
+
+    @NotNull
     public String getId() {
         return id;
     }
 
-    @Deprecated
-    public Material getMaterial() {
-        return material;
+    /**
+     * Preprocesses item lore before PAPI placeholders, coloring
+     * are applied. Made to be overrided by subclasses.
+     */
+    public void preprocessLore(@NotNull T inv, int index, @NotNull List<String> lore) {
+        // Nothing
     }
 
-    @Deprecated
-    public boolean hideFlags() {
-        return hideFlags;
-    }
-
-    @Deprecated
-    public boolean hasName() {
-        return name != null;
-    }
-
-    @Deprecated
-    public String getName() {
+    /**
+     * Preprocesses item name before applying PAPI placeholders and coloring.
+     * Made to be overrided by subclasses.
+     */
+    public String preprocessName(@NotNull T inv, int index, @NotNull String name) {
+        // Nothing
         return name;
     }
 
-    @Deprecated
-    public boolean hasLore() {
-        return lore != null && !lore.isEmpty();
-    }
-
-    @Deprecated
-    public List<String> getLore() {
-        return lore;
-    }
-
-    @Deprecated
-    public int getCustomModelDataInt() {
-        return customModelDataInt;
-    }
-
-    @Deprecated
-    public String getCustomModelDataString() {
-        return customModelDataString;
-    }
- */
 
     @Nullable
     public ItemStack getDisplayedItem(@NotNull T inv, int n) {
         return getDisplayedItem(inv, ItemOptions.index(n));
     }
-
 
     /**
      * @param inv     Generated inventory being opened by a player
@@ -120,24 +96,30 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
         if (meta != null) {
 
             // Display name
-            if (name != null)
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', placeholders.apply(effectivePlayer, name)));
+            if (name != null) {
+                String rawName = preprocessName(inv, options.index(), name); // Preprocess
+                rawName = placeholders.apply(effectivePlayer, rawName); // Apply placeholders
+                rawName = ChatColor.translateAlternateColorCodes('&', rawName); // Color codes
+                meta.setDisplayName(rawName); // Set
+            }
 
             // Hide flags
             if (hideFlags) meta.addItemFlags(ItemFlag.values());
             if (hideTooltip) meta.setHideTooltip(true);
 
             // Lore
-            if (lore != null) {
-                List<String> lore = new ArrayList<>();
-                for (String line : this.lore) {
-                    //Enables to have placeholders for a list of item. Color codes for the placeholders also (e.g player can introduce color codes in their input).
+            if (this.lore != null && !this.lore.isEmpty()) {
+                List<String> lore = new ArrayList<>(this.lore); // Clone
+                preprocessLore(inv, options.index(), lore); // Preprocess
+
+                List<String> workLore = new ArrayList<>();
+                for (String line : lore) {
+                    // Splitting the lines allows for internal placeholders to add line breaks
                     String[] parsed = ChatColor.translateAlternateColorCodes('&', placeholders.apply(effectivePlayer, line)).split("\n");
-                    for (String str : parsed) {
-                        lore.add(ChatColor.GRAY + str);
-                    }
+                    for (String str : parsed) workLore.add(ChatColor.GRAY + str);
                 }
-                meta.setLore(lore);
+
+                meta.setLore(workLore); // Set
             }
 
             // Custom model data integer
