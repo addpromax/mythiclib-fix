@@ -27,6 +27,8 @@ public abstract class GeneratedInventory extends PluginInventory {
     // TODO set to null when closing
     protected Inventory lastOpened;
 
+    private int perPage = -1;
+
     public GeneratedInventory(Navigator navigator, EditableInventory editable) {
         super(navigator);
 
@@ -42,6 +44,36 @@ public abstract class GeneratedInventory extends PluginInventory {
     public EditableInventory getEditable() {
         return editable;
     }
+
+    //region Pagination
+
+    protected void enablePagination(int perPage) {
+        this.perPage = perPage;
+    }
+
+    public boolean hasPagination() {
+        return perPage >= 0;
+    }
+
+    /**
+     * Made to be overriden
+     *
+     * @see io.lumine.mythic.lib.gui.editable.item.builtin.NextPageItem
+     * @see io.lumine.mythic.lib.gui.editable.item.builtin.PreviousPageItem
+     */
+    // TODO remove and put in enablePagination as argument
+    public int getMaxPage() {
+        return 1;
+    }
+
+    public int getPageIndex(int offset) {
+        return (page - 1) * perPage + offset;
+    }
+
+    public int computeMaxPage(int contentSize) {
+        return Math.max(1, (int) Math.ceil((double) contentSize / perPage));
+    }
+    //endregion
 
     /**
      * @param function The item function, like 'next-page'
@@ -118,13 +150,6 @@ public abstract class GeneratedInventory extends PluginInventory {
             final ItemStack displayed = raw.getDisplayedItem(this, j);
             if (displayed != null) inv.setItem(item.getSlots().get(j), displayed);
         }
-    }
-
-    /**
-     * @see io.lumine.mythic.lib.gui.editable.item.builtin.NextPageItem
-     */
-    public int getMaxPage() {
-        return 1;
     }
 
     @Override
