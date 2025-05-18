@@ -137,6 +137,8 @@ public abstract class GeneratedInventory extends PluginInventory {
             displayItem(inv, item); // Display item
         }
 
+        lastOpened = inv; // Store inventory for later
+
         return inv;
     }
 
@@ -160,6 +162,11 @@ public abstract class GeneratedInventory extends PluginInventory {
             final InventoryItem item = getBySlot(event.getSlot());
             if (item != null) item.onClick(this, event);
         }
+    }
+
+    @Override
+    public void onClose() {
+        lastOpened = null;
     }
 
     /**
@@ -191,6 +198,7 @@ public abstract class GeneratedInventory extends PluginInventory {
 
     public void asyncUpdate(InventoryItem<?> item, int n, ItemStack placed, Consumer<ItemStack> update) {
         Bukkit.getScheduler().runTaskAsynchronously(MythicLib.plugin, () -> {
+            if (lastOpened == null) return;
             update.accept(placed);
             lastOpened.setItem(item.getSlots().get(n), placed);
         });
@@ -198,6 +206,7 @@ public abstract class GeneratedInventory extends PluginInventory {
 
     public <T> void asyncUpdate(CompletableFuture<T> future, InventoryItem<?> item, int n, ItemStack placed, BiConsumer<T, ItemStack> update) {
         future.thenAccept(t -> {
+            if (lastOpened == null) return;
             update.accept(t, placed);
             lastOpened.setItem(item.getSlots().get(n), placed);
         });
