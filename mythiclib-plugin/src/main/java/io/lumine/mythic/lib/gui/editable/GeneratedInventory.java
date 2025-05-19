@@ -71,8 +71,9 @@ public abstract class GeneratedInventory extends PluginInventory {
     }
 
     public int computeMaxPage(int contentSize) {
-        return Math.max(1, (int) Math.ceil((double) contentSize / perPage));
+        return Math.ceilDiv(Math.max(1, contentSize), perPage);
     }
+
     //endregion
 
     /**
