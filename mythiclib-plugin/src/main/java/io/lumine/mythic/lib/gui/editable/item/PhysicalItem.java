@@ -16,7 +16,6 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +29,6 @@ public abstract class PhysicalItem<T extends GeneratedInventory> extends Invento
     private final String customModelDataString;
     private final NamespacedKey itemModel;
     private final boolean hideFlags, hideTooltip;
-
-    protected final DecimalFormat ONE_DIGIT = new DecimalFormat("0.#");
 
     public PhysicalItem(@NotNull ConfigurationSection config) {
         this(null, config);
