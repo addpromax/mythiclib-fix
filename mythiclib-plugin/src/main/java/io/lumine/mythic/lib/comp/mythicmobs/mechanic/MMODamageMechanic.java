@@ -74,6 +74,9 @@ public class MMODamageMechanic extends DamagingMechanic implements ITargetedEnti
     @Override
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
 
+        if (target == null)
+            return SkillResult.INVALID_TARGET;
+            
         if (target.isDead() || !(target.getBukkitEntity() instanceof LivingEntity) || data.getCaster().isUsingDamageSkill() || target.getHealth() <= 0)
             return SkillResult.INVALID_TARGET;
 

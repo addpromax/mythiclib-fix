@@ -83,6 +83,10 @@
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
         <repository>
+            <id>mavenrepo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>        
+        <repository>
             <id>minecraft-libraries</id>
             <name>Minecraft Libraries</name>
             <url>https://libraries.minecraft.net/</url>
@@ -283,16 +287,14 @@
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.12</version>
-            <classifier>dist</classifier>
+            <version>7.0.13</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>7.3.9-beta</version>
-            <classifier>dist</classifier>
+            <version>7.3.11</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
