@@ -63,6 +63,11 @@
             <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
         </repository>
 
+    <repository>
+        <id>elmakers</id>
+        <url>https://maven.elmakers.com/repository/</url>
+    </repository>
+
         <repository>
             <id>mojang</id>
             <url>https://libraries.minecraft.net/</url>

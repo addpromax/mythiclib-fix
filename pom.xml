@@ -8,24 +8,6 @@
     <modules>
         <module>mythiclib-plugin</module>
         <module>mythiclib-dist</module>
-        <module>mythiclib-v1_14_r1</module>
-        <module>mythiclib-v1_15_r1</module>
-        <module>mythiclib-v1_16_r1</module>
-        <module>mythiclib-v1_16_r2</module>
-        <module>mythiclib-v1_16_r3</module>
-        <module>mythiclib-v1_17_r1</module>
-        <module>mythiclib-v1_18_r1</module>
-        <module>mythiclib-v1_18_r2</module>
-        <module>mythiclib-v1_19_r1</module>
-        <module>mythiclib-v1_19_r2</module>
-        <module>mythiclib-v1_19_r3</module>
-        <module>mythiclib-v1_20_r1</module>
-        <module>mythiclib-v1_20_r2</module>
-        <module>mythiclib-v1_20_r3</module>
-        <module>mythiclib-v1_20_r4</module>
-        <module>mythiclib-v1_21_r1</module>
-        <module>mythiclib-v1_21_r2</module>
-        <module>mythiclib-v1_21_r3</module>
         <module>mythiclib-v1_21_r4</module>
         <module>mythiclib-vr</module>
     </modules>

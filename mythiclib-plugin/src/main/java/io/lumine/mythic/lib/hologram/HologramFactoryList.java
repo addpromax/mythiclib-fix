@@ -13,6 +13,7 @@ public enum HologramFactoryList {
     HOLOGRAMS("Holograms", HologramsHologramFactory::new),
     LEGACY_ARMOR_STANDS("LegacyArmorStands", LegacyBukkitHologramFactory::new),
     TR_HOLOGRAM("TrHologram", TrHologramFactory::new),
+    FANCYHOLOGRAMS("FancyHolograms", FancyHologramsFactory::new),
     ;
 
     private final String name;
