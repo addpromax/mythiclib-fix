@@ -21,6 +21,9 @@ commands:
     aliases: [ mwb ]
     description: Open the mega 6x6 workbench
     permission: mythiclib.megaworkbench
+  cleanupindicators:
+    description: Clean up leftover damage indicator entities
+    permission: mythiclib.admin
 permissions:
   mythiclib.admin:
     default: op

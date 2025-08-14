@@ -8,6 +8,7 @@ import io.lumine.mythic.lib.api.crafting.uifilters.MythicItemUIFilter;
 import io.lumine.mythic.lib.api.event.armorequip.ArmorEquipEvent;
 import io.lumine.mythic.lib.api.placeholders.MythicPlaceholders;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
+import io.lumine.mythic.lib.command.CleanupIndicatorsCommand;
 import io.lumine.mythic.lib.command.HealthScaleCommand;
 import io.lumine.mythic.lib.command.MMOTempStatCommand;
 import io.lumine.mythic.lib.comp.FabledModule;
@@ -52,6 +53,9 @@ import io.lumine.mythic.lib.version.ServerVersion;
 import io.lumine.mythic.lib.version.SpigotPlugin;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.jetbrains.annotations.NotNull;
@@ -169,6 +173,11 @@ public class MythicLib extends MMOPluginImpl {
             hologramFactory = found.provide();
             Bukkit.getServicesManager().register(HologramFactory.class, hologramFactory, this, ServicePriority.Normal); // Backwards compatibility
             getLogger().log(Level.INFO, "Hooked onto " + found.getName() + " (holograms)");
+            
+            // Clean up any leftover TextDisplay entities from previous sessions
+            if (found == HologramFactoryList.TEXT_DISPLAYS) {
+                cleanupTextDisplays();
+            }
         } catch (Throwable throwable) {
             hologramFactory = HologramFactoryList.LEGACY_ARMOR_STANDS.provide();
             getLogger().log(Level.WARNING, "Could not hook onto hologram provider " + getConfig().getString("hologram-provider") + ", using default: " + throwable.getMessage());
@@ -248,6 +257,9 @@ public class MythicLib extends MMOPluginImpl {
         // Command executors
         getCommand("mmotempstat").setExecutor(new MMOTempStatCommand());
         getCommand("healthscale").setExecutor(new HealthScaleCommand());
+        
+        // Add cleanup command for TextDisplay entities
+        getCommand("cleanupindicators").setExecutor(new CleanupIndicatorsCommand());
 
         // Super workbench
         getCommand("superworkbench").setExecutor(SuperWorkbenchMapping.SWB);
@@ -275,6 +287,11 @@ public class MythicLib extends MMOPluginImpl {
         // Loop for applying permanent potion effects
         Bukkit.getScheduler().runTaskTimer(plugin, () -> MMOPlayerData.forEachOnline(MMOPlayerData::tickOnline), 100, 20);
 
+        // Periodic cleanup of orphaned TextDisplay entities (every 5 minutes)
+        if (hologramFactory != null && hologramFactory.getClass().getSimpleName().equals("BukkitHologramFactory")) {
+            Bukkit.getScheduler().runTaskTimer(this, this::cleanupTextDisplays, 20 * 60 * 5, 20 * 60 * 5);
+        }
+
         configManager.enable();
         statManager.enable();
     }
@@ -300,6 +317,14 @@ public class MythicLib extends MMOPluginImpl {
         UtilityMethods.closeOpenViewsOfType(PluginInventory.class);
 
         glowModule.disable();
+        
+        // Clean up any remaining TextDisplay entities when plugin is disabled
+        if (hologramFactory != null && hologramFactory.getClass().getSimpleName().equals("BukkitHologramFactory")) {
+            cleanupTextDisplays();
+        }
+        
+        // Cancel all running tasks for this plugin
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     public static MythicLib inst() {
@@ -462,5 +487,36 @@ public class MythicLib extends MMOPluginImpl {
 
     public ActionBarProvider getActionBarProvider() {
         return actionBarProvider;
+    }
+    
+    /**
+     * Clean up any leftover TextDisplay entities from previous sessions
+     */
+    private void cleanupTextDisplays() {
+        final NamespacedKey pdcKey = new NamespacedKey(this, "hologram");
+        int cleanedCount = 0;
+        
+        try {
+            for (org.bukkit.World world : Bukkit.getWorlds()) {
+                if (world != null) {
+                    for (TextDisplay td : world.getEntitiesByClass(TextDisplay.class)) {
+                        try {
+                            if (td != null && !td.isDead() && td.getPersistentDataContainer().has(pdcKey, PersistentDataType.BOOLEAN)) {
+                                td.remove();
+                                cleanedCount++;
+                            }
+                        } catch (Exception e) {
+                            getLogger().warning("Error removing TextDisplay entity: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            getLogger().warning("Error during TextDisplay cleanup: " + e.getMessage());
+        }
+        
+        if (cleanedCount > 0) {
+            getLogger().log(Level.INFO, "Cleaned up " + cleanedCount + " leftover TextDisplay entities");
+        }
     }
 }

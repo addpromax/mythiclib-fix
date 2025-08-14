@@ -6,11 +6,15 @@ import io.lumine.mythic.lib.hologram.Hologram;
 import io.lumine.mythic.lib.hologram.HologramFactory;
 import io.lumine.mythic.lib.listener.option.GameIndicators;
 import io.lumine.mythic.lib.util.lang3.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -20,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class BukkitHologramFactory implements HologramFactory /*, Listener*/ {
+public class BukkitHologramFactory implements HologramFactory, Listener {
     public BukkitHologramFactory() {
         Validate.isTrue(MythicLib.plugin.getVersion().isAbove(1, 19, 4), "Text displays are only available on 1.19.4+");
-        //Bukkit.getPluginManager().registerEvents(this, MythicLib.plugin);
+        Bukkit.getPluginManager().registerEvents(this, MythicLib.plugin);
     }
 
     @NotNull
@@ -32,14 +36,23 @@ public class BukkitHologramFactory implements HologramFactory /*, Listener*/ {
     }
 
     private static final NamespacedKey PDC_KEY = new NamespacedKey(MythicLib.plugin, "hologram");
-/*
     // Clear entities on world load
     @EventHandler
     public void clearEntities(WorldLoadEvent event) {
         for (TextDisplay td : event.getWorld().getEntitiesByClass(TextDisplay.class))
             if (td.getPersistentDataContainer().has(PDC_KEY)) td.remove();
     }
- */
+    
+    // Clear entities on server shutdown (commented out due to version compatibility)
+    /*
+    @EventHandler
+    public void clearEntitiesOnShutdown(org.bukkit.event.server.ServerShutdownEvent event) {
+        for (org.bukkit.World world : org.bukkit.Bukkit.getWorlds()) {
+            for (TextDisplay td : world.getEntitiesByClass(TextDisplay.class))
+                if (td.getPersistentDataContainer().has(PDC_KEY)) td.remove();
+        }
+    }
+    */
 
     private static final class HologramImpl extends Hologram {
         private final List<String> lines = new ArrayList<>();
@@ -83,9 +96,18 @@ public class BukkitHologramFactory implements HologramFactory /*, Listener*/ {
 
         @Override
         public void despawn() {
-            this.spawnedEntities.forEach(Entity::remove);
-            this.spawnedEntities.clear();
-            this.spawned = false;
+            try {
+                for (TextDisplay td : this.spawnedEntities) {
+                    if (td != null && !td.isDead() && td.getWorld() != null) {
+                        td.remove();
+                    }
+                }
+            } catch (Exception e) {
+                MythicLib.plugin.getLogger().warning("Error while despawning TextDisplay entities: " + e.getMessage());
+            } finally {
+                this.spawnedEntities.clear();
+                this.spawned = false;
+            }
         }
 
         @Override
@@ -123,10 +145,10 @@ public class BukkitHologramFactory implements HologramFactory /*, Listener*/ {
         public void flyOut(@NotNull GameIndicators settings, @NotNull Vector dir) {
 
             // Teleport duration is not implemented in 1.20.1 and below
-            Validate.isTrue(MythicLib.plugin.getVersion().isAbove(1, 20, 2), "Moving indicators is only available in 1.20.2 and above");
-
-            for (TextDisplay td : getSpawnedEntities())
-                td.setTeleportDuration((int) settings.tickPeriod);
+            if (MythicLib.plugin.getVersion().isAbove(1, 20, 2)) {
+                for (TextDisplay td : getSpawnedEntities())
+                    td.setTeleportDuration((int) settings.tickPeriod);
+            }
 
             super.flyOut(settings, dir);
             /*

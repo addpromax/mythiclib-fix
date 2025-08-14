@@ -241,3 +241,6 @@ gradle-app.setting
 !**/src/**
 
 local_install.bat
+
+# Maven build outputs (all modules)
+**/target/

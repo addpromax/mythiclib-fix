@@ -28,19 +28,30 @@ public abstract class Hologram {
 
             @Override
             public void run() {
+                try {
+                    // Check if hologram is still spawned
+                    if (!isSpawned()) {
+                        cancel();
+                        return;
+                    }
 
-                if (i == 0) dir.multiply(2 * settings.radialVelocity);
+                    if (i == 0) dir.multiply(2 * settings.radialVelocity);
 
-                // Remove hologram when reaching end of life
-                if (i++ >= settings.lifespan) {
+                    // Remove hologram when reaching end of life
+                    if (i++ >= settings.lifespan) {
+                        despawn();
+                        cancel();
+                        return;
+                    }
+
+                    v += acc * DT;
+                    loc.add(dir.getX() * DT, v * DT, dir.getZ() * DT);
+                    updateLocation(loc);
+                } catch (Exception e) {
+                    MythicLib.plugin.getLogger().warning("Error in hologram flyOut task: " + e.getMessage());
                     despawn();
                     cancel();
-                    return;
                 }
-
-                v += acc * DT;
-                loc.add(dir.getX() * DT, v * DT, dir.getZ() * DT);
-                updateLocation(loc);
             }
         }.runTaskTimer(MythicLib.plugin, 0, settings.tickPeriod);
     }
