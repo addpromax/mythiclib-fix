@@ -86,6 +86,13 @@ public abstract class LightInjector {
     private static final Field GET_NETWORK_MANAGER = getField(PLAYER_CONNECTION_CLASS, NETWORK_MANAGER_CLASS, 1, 1);
 
     private static final Method GET_PLAYER_HANDLE = getMethod(getCBClass("entity.CraftPlayer"), "getHandle");
+    
+    // Cache for GameProfile id field/method reflection to avoid repeated lookups
+    @Nullable
+    private static volatile Field GAME_PROFILE_ID_FIELD = null;
+    @Nullable
+    private static volatile Method GAME_PROFILE_GET_ID_METHOD = null;
+    private static final Object GAME_PROFILE_ID_FIELD_LOCK = new Object();
 
     // Used to make identifiers unique if multiple instances are created. This doesn't need to be atomic
     // since it is called only from the constructor, which is assured to run on the main thread
@@ -483,14 +490,21 @@ public abstract class LightInjector {
             if (player == null && PACKET_LOGIN_OUT_SUCCESS_CLASS.isInstance(packet)) {
                 // Player object should be in cache. If it's not, then it'll be PlayerJoinEvent to set the player
                 try {
-                    @Nullable Player player = playerCache.remove(((GameProfile) GAME_PROFILE_FROM_PACKET.get(packet)).getId());
+                    GameProfile profile = (GameProfile) GAME_PROFILE_FROM_PACKET.get(packet);
+                    UUID uuid = getGameProfileId(profile);
+                    if (uuid != null) {
+                        @Nullable Player player = playerCache.remove(uuid);
 
-                    // Set the player only if it was contained into the cache
-                    if (player != null) {
-                        this.player = player;
+                        // Set the player only if it was contained into the cache
+                        if (player != null) {
+                            this.player = player;
+                        }
                     }
                 } catch (ReflectiveOperationException exception) {
                     plugin.getLogger().log(Level.SEVERE, "[LightInjector] An error occurred while handling PacketLoginOutSuccess:", exception);
+                } catch (NoSuchMethodError | RuntimeException exception) {
+                    // Handle case where getId() method is not available (Paper 1.21+)
+                    plugin.getLogger().log(Level.WARNING, "[LightInjector] Could not get UUID from GameProfile, player will be set on PlayerJoinEvent instead:", exception);
                 }
             }
 
@@ -528,6 +542,74 @@ public abstract class LightInjector {
     }
 
     // ====================================== Reflection stuff ======================================
+
+    /**
+     * Safely gets the UUID from a GameProfile, handling both old and new Paper versions.
+     * In Paper 1.21+, the getId() method may not be available, so we use reflection as a fallback.
+     *
+     * @param profile The GameProfile to get the UUID from
+     * @return The UUID, or null if it cannot be determined
+     */
+    @Nullable
+    private static UUID getGameProfileId(GameProfile profile) {
+        if (profile == null) {
+            return null;
+        }
+
+        // Initialize reflection cache if needed
+        if (GAME_PROFILE_GET_ID_METHOD == null && GAME_PROFILE_ID_FIELD == null) {
+            synchronized (GAME_PROFILE_ID_FIELD_LOCK) {
+                if (GAME_PROFILE_GET_ID_METHOD == null && GAME_PROFILE_ID_FIELD == null) {
+                    // First, try to find the getId() method using reflection
+                    try {
+                        Method getIdMethod = profile.getClass().getMethod("getId");
+                        if (getIdMethod.getReturnType() == UUID.class) {
+                            GAME_PROFILE_GET_ID_METHOD = getIdMethod;
+                        }
+                    } catch (NoSuchMethodException ignored) {
+                        // Method doesn't exist, will use field reflection
+                    }
+
+                    // If method not found, try to find the id field
+                    if (GAME_PROFILE_GET_ID_METHOD == null) {
+                        for (String fieldName : new String[]{"id", "uniqueId", "uuid"}) {
+                            try {
+                                Field idField = profile.getClass().getDeclaredField(fieldName);
+                                if (idField.getType() == UUID.class) {
+                                    idField.setAccessible(true);
+                                    GAME_PROFILE_ID_FIELD = idField;
+                                    break;
+                                }
+                            } catch (NoSuchFieldException ignored) {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Try using the getId() method if available
+        if (GAME_PROFILE_GET_ID_METHOD != null) {
+            try {
+                return (UUID) GAME_PROFILE_GET_ID_METHOD.invoke(profile);
+            } catch (Exception e) {
+                // Method invocation failed, fall back to field access
+            }
+        }
+
+        // Fall back to field access
+        if (GAME_PROFILE_ID_FIELD != null) {
+            try {
+                return (UUID) GAME_PROFILE_ID_FIELD.get(profile);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not get UUID from GameProfile using reflection", e);
+            }
+        }
+
+        // If neither method nor field was found, this is a critical error
+        throw new RuntimeException("Could not get UUID from GameProfile: neither getId() method nor id field found. " +
+                "This may indicate an incompatible Paper version.");
+    }
 
     private static Class<?> getNMSClass(String name, String mcPackage) {
         String path = "net.minecraft." + (VERSION >= 17 ? mcPackage : "server." + COMPLETE_VERSION) + '.' + name;
